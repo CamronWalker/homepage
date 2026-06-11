@@ -121,4 +121,11 @@ export function sizeRocketParts() {
   if (s2)     s2.style.width     = w;
   if (debris) debris.style.width = w;
   if (mated)  mated.style.width  = w;
+  // astronaut + satellite share the launch px-per-svg-unit scale. The prototype
+  // never sized these, leaving the absolutely-positioned wrappers dimensionless —
+  // the "spacewalk guy not showing" bug.
+  var astro = els.astro || document.getElementById("flAstro");
+  var sat   = els.sat   || document.getElementById("flSat");
+  if (astro) astro.style.width = (lw * 660 / 600).toFixed(1) + "px";
+  if (sat)   sat.style.width   = (lw * 184 / 600).toFixed(1) + "px";
 }

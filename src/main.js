@@ -8,6 +8,7 @@ import { TUNABLES } from "./mission/tunables.js";
 import { refreshCtx } from "./mission/context.js";
 import { buildLaunch } from "./mission/launch.js";
 import { buildSeparation } from "./mission/separation.js";
+import { buildSpacewalk } from "./mission/spacewalk.js";
 import { createStageManager } from "./mission/stage.js";
 
 gsap.registerPlugin(ScrollTrigger, MotionPathPlugin, DrawSVGPlugin);
@@ -37,10 +38,16 @@ mm.add(
     const refs = {};
     Object.assign(refs, buildLaunch(els, TUNABLES));
     Object.assign(refs, buildSeparation(els, TUNABLES));
+    Object.assign(refs, buildSpacewalk(els, TUNABLES, {}));   // laneAt wired by phase 4
+    refs.s2Owners = [refs.separation, refs.coast, refs.mission];
     const removeStage = createStageManager(els, refs);
     createPin({ trigger: ".about-pin",   topFrac: TUNABLES.PIN_TOP_FRAC,        durVH: TUNABLES.PIN_DUR_VH,        pinGridEl, onToggle: onEnter });
     createPin({ trigger: ".skills-pin",  topFrac: TUNABLES.SKILLS_PIN_TOP_FRAC, durVH: TUNABLES.SKILLS_PIN_DUR_VH, pinGridEl, onToggle: onEnter });
     createPin({ trigger: ".contact-pin", topFrac: TUNABLES.FOOT_PIN_TOP_FRAC,   durVH: TUNABLES.FOOT_PIN_DUR_VH,   pinGridEl, onToggle: onEnter });
+    // phases are built before their pins, so re-sort into document order — otherwise
+    // triggers below a pin compute their ranges without that pin's spacer
+    ScrollTrigger.sort();
+    ScrollTrigger.refresh();
     return () => removeStage();            // matchMedia cleanup on breakpoint change
   }
 );

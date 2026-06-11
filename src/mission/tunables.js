@@ -55,7 +55,7 @@ export const TUNABLES = {
   SKILLS_PIN_DUR_VH: 1.7,
   SKILLS_PIN_TOP_FRAC: 0.07,
   ASTRO_ABOVE_CARDS: 64,
-  ASTRO_SCALE: 1,
+  ASTRO_SCALE: 0.34,   // matches the studio Phase-3 composition (rockets.js scale(0.34))
   CAPSULE_X_FRAC: 0.84,
   TOUR_END: 0.66,
   // phase 4 · orbit + landing

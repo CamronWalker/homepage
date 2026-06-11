@@ -25,6 +25,8 @@ export function createStageManager(els, refs) {
     // widened by later phases via refs.s2Owners)
     [["debris", "boostFlame"], (r) => out(r.separation)],
     [["s2", "s2Flame"], (r) => (r.s2Owners || [r.separation]).every(out)],
+    // astronaut + tether exist only inside the spacewalk pin
+    [["astro", "flLink"], (r) => out(r.mission)],
   ];
 
   const tick = () => {
