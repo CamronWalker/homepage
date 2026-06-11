@@ -11,6 +11,7 @@ import { buildSeparation } from "./mission/separation.js";
 import { buildSpacewalk } from "./mission/spacewalk.js";
 import { buildLanding } from "./mission/landing.js";
 import { createStageManager } from "./mission/stage.js";
+import { initProjectsUI } from "./ui/projects-modal.js";
 
 gsap.registerPlugin(ScrollTrigger, MotionPathPlugin, DrawSVGPlugin);
 // normalize only on touch-only devices (iOS address-bar/momentum resync); on
@@ -115,3 +116,6 @@ window.addEventListener("scroll", revealInView, { passive: true });
 window.addEventListener("load", revealInView);
 revealInView();
 setTimeout(revealInView, 400);
+
+/* ---------- projects modal ---------- */
+initProjectsUI();
