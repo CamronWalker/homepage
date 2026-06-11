@@ -1,0 +1,23 @@
+{
+  "name": "camronwalker-homepage",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "gsap": "^3.13.0"
+  },
+  "devDependencies": {
+    "vite": "^6.3.0",
+    "vitest": "^3.1.0",
+    "jsdom": "^26.0.0",
+    "@playwright/test": "^1.52.0"
+  }
+}
