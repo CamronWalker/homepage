@@ -1,10 +1,37 @@
+import gsap from "gsap";
+import ScrollTrigger from "gsap/ScrollTrigger";
+import MotionPathPlugin from "gsap/MotionPathPlugin";
+import DrawSVGPlugin from "gsap/DrawSVGPlugin";
 import { injectFlightLayer, sizeRocketParts } from "./flight-layer.js";
+import { createPin } from "./mission/pins.js";
+import { TUNABLES } from "./mission/tunables.js";
+import { refreshCtx } from "./mission/context.js";
+
+gsap.registerPlugin(ScrollTrigger, MotionPathPlugin, DrawSVGPlugin);
+ScrollTrigger.normalizeScroll(true);
+ScrollTrigger.addEventListener("refreshInit", refreshCtx);
 
 document.documentElement.classList.add("js");
 injectFlightLayer();
 sizeRocketParts();
 window.addEventListener("resize", sizeRocketParts);
 document.getElementById("yr").textContent = new Date().getFullYear();
+
+/* ---------- the mission (desktop choreography; mobile variant lands in Task 9) ---------- */
+const mm = gsap.matchMedia();
+mm.add(
+  { desktop: "(min-width: 921px)", mobile: "(max-width: 920px)", reduce: "(prefers-reduced-motion: reduce)" },
+  (mmCtx) => {
+    const { reduce, mobile } = mmCtx.conditions;
+    const flight = document.getElementById("flight");
+    if (reduce || mobile) { return; }              // CSS hides .flight ≤920 / reduced motion
+    const pinGridEl = document.getElementById("pinGrid");
+    const onEnter = (self) => { if (self.isActive) refreshCtx(); };
+    createPin({ trigger: ".about-pin",   topFrac: TUNABLES.PIN_TOP_FRAC,        durVH: TUNABLES.PIN_DUR_VH,        pinGridEl, onToggle: onEnter });
+    createPin({ trigger: ".skills-pin",  topFrac: TUNABLES.SKILLS_PIN_TOP_FRAC, durVH: TUNABLES.SKILLS_PIN_DUR_VH, pinGridEl, onToggle: onEnter });
+    createPin({ trigger: ".contact-pin", topFrac: TUNABLES.FOOT_PIN_TOP_FRAC,   durVH: TUNABLES.FOOT_PIN_DUR_VH,   pinGridEl, onToggle: onEnter });
+  }
+);
 
 /* ---------- nav: mobile burger ---------- */
 var burger   = document.getElementById("burger");

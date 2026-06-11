@@ -116,24 +116,15 @@ section { position: relative; }
   font-size: 12px; letter-spacing: .28em; text-transform: uppercase;
   color: var(--cw-graphite-2); opacity: .5; }
 
-/* About is pinned by JS (site.js) during stage separation — a robust replacement for
-   position:sticky, which is unreliable when the content is taller than the viewport.
-   JS toggles .about-fix between absolute (in-flow, top of the spacer) and fixed (frozen). */
+/* About freezes during stage separation; Skills during the spacewalk. ScrollTrigger
+   pins the .*-pin wrappers (it owns the spacing); the inner .*-fix just stacks the
+   content above the frozen graph-paper layer. */
 .sec.about { padding-top: 28px; }
-.about-pin { position: relative; }            /* height set by JS = content + pin duration */
-.about-fix { left: 0; right: 0; width: 100%; z-index: 2; }   /* z:2 keeps it above the frozen grid */
-@media (max-width: 920px) {
-  .about-pin { height: auto !important; }
-  .about-fix { position: static !important; top: auto !important; }
-}
+.about-pin { position: relative; }
+.about-fix { position: relative; z-index: 2; }   /* z:2 keeps it above the frozen grid */
 
-/* Skills is pinned by JS during the spacewalk (same mechanism + frozen grid as About). */
-.skills-pin { position: relative; }            /* height set by JS = content + pin duration */
-.skills-fix { left: 0; right: 0; width: 100%; z-index: 2; }
-@media (max-width: 920px) {
-  .skills-pin { height: auto !important; }
-  .skills-fix { position: static !important; top: auto !important; }
-}
+.skills-pin { position: relative; }
+.skills-fix { position: relative; z-index: 2; }
 /* the skill card the astronaut is visiting lifts + gains a blue accent */
 .skill-cat { transition: transform .3s var(--cw-ease), box-shadow .3s var(--cw-ease), border-color .3s var(--cw-ease); }
 .skill-cat.sk-active { transform: translateY(-6px); border-color: var(--cw-blue);
@@ -144,8 +135,8 @@ section { position: relative; }
    the globe in view (lower-right) while the rocket re-enters and shrinks to a dot — you
    stick around on this scene and keep scrolling to advance the animation. */
 .sec.contact { position: relative; }
-.contact-pin { position: relative; }           /* height set by JS = content + landing pin */
-.contact-fix { left: 0; right: 0; width: 100%; z-index: 2; overflow: hidden;
+.contact-pin { position: relative; }           /* ScrollTrigger pins this for the landing */
+.contact-fix { position: relative; z-index: 2; overflow: hidden;
   display: flex; align-items: center; min-height: 100vh; }
 .contact-fix .cw-wrap { position: relative; z-index: 2; width: 100%; }
 /* globe PEGGED to the bottom-right corner — it stays put while the rocket descends to it */
@@ -153,9 +144,8 @@ section { position: relative; }
   width: clamp(440px, 48vw, 880px); aspect-ratio: 1 / 1; pointer-events: none; opacity: .96; }
 .land-globe svg { width: 100%; height: 100%; display: block; overflow: visible; }
 @media (max-width: 920px) {
-  .contact-pin { height: auto !important; }
-  .contact-fix { position: static !important; top: auto !important; min-height: 0; }
-  .land-globe { display: none; }
+  .contact-fix { min-height: 0; }
+  .land-globe { display: none; }   /* restored on mobile by the Task-9 choreography pass */
 }
 
 
