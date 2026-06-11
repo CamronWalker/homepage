@@ -30,24 +30,74 @@ export function coastFrame(p, ctx, t) {
   };
 }
 
-const LEAD_IN = 0.18;   // fraction of the tour spent crossing from capsule to the far-left card
+const LEAD_IN = 0.18;   // fraction of the tour spent crossing from the capsule to the first card
+
+/* The tour is a serpentine over card ROWS: cards group into rows by centre-y,
+   rows visit top→bottom, direction alternating per row, the astronaut riding
+   ASTRO_ABOVE_CARDS above each row. One algorithm covers every breakpoint —
+   a single desktop row degenerates to the classic far-left-then-L→R sweep,
+   the tablet 2×2 serpentines, and the phone column rides straight down.    */
+export function tourWaypoints(ctx, t) {
+  const sorted = [...ctx.cards].sort((a, b) => a.cy - b.cy || a.cx - b.cx);
+  const rows = [];
+  for (const c of sorted) {
+    const h = Math.max(40, (c.bottom - c.top) * 0.5);
+    const row = rows.find((r) => Math.abs(r.cy - c.cy) < h);
+    if (row) { row.cards.push(c); } else rows.push({ cy: c.cy, cards: [c] });
+  }
+  const pts = [];
+  rows.forEach((row, i) => {
+    row.cards.sort((a, b) => a.cx - b.cx);
+    const ordered = i % 2 === 0 ? row.cards : [...row.cards].reverse();
+    const y = Math.max(Math.min(...row.cards.map((c) => c.top)) - t.ASTRO_ABOVE_CARDS, 96);
+    ordered.forEach((c) => pts.push({ x: c.cx, y, card: ctx.cards.indexOf(c) }));
+  });
+  return pts;
+}
+
+function pointAlong(pts, u) {
+  if (pts.length === 1) return { x: pts[0].x, y: pts[0].y };
+  const segs = [];
+  let total = 0;
+  for (let i = 1; i < pts.length; i++) {
+    const d = Math.hypot(pts[i].x - pts[i - 1].x, pts[i].y - pts[i - 1].y) || 1e-6;
+    segs.push(d); total += d;
+  }
+  let s = clamp01(u) * total;
+  for (let i = 0; i < segs.length; i++) {
+    if (s <= segs[i]) {
+      const k = s / segs[i];
+      return { x: lerp(pts[i].x, pts[i + 1].x, k), y: lerp(pts[i].y, pts[i + 1].y, k) };
+    }
+    s -= segs[i];
+  }
+  return { x: pts[pts.length - 1].x, y: pts[pts.length - 1].y };
+}
 
 export function missionFrame(p, ctx, t) {
   p = clamp01(p);
-  const n = ctx.cards.length;
   const hold = capsuleHold(ctx, t);
-  const bandY = Math.max(ctx.cardsTop - t.ASTRO_ABOVE_CARDS, 96);
+  const pts = tourWaypoints(ctx, t);
+  const endWp = pts[pts.length - 1];
 
   if (p < t.TOUR_END) {
     const tt = clamp01(p / t.TOUR_END);
-    let ax;
-    if (tt < LEAD_IN) ax = lerp(hold.x, ctx.cards[0].cx, easeInOut(tt / LEAD_IN));
-    else ax = lerp(ctx.cards[0].cx, ctx.cards[n - 1].cx, easeInOut((tt - LEAD_IN) / (1 - LEAD_IN)));
-    let active = -1;
-    for (let k = 0; k < n; k++) {
-      if (ax >= ctx.cards[k].left - 8 && ax <= ctx.cards[k].right + 8) { active = k; break; }
+    let ax, ay;
+    if (tt < LEAD_IN) {
+      const k = easeInOut(tt / LEAD_IN);
+      ax = lerp(hold.x, pts[0].x, k);
+      ay = lerp(hold.y + 0.04 * ctx.H, pts[0].y, k);
+    } else {
+      const pos = pointAlong(pts, easeInOut((tt - LEAD_IN) / (1 - LEAD_IN)));
+      ax = pos.x; ay = pos.y;
     }
-    const ay = bandY + Math.sin(p * Math.PI * 7) * 7 + (active >= 0 ? 12 : 0);
+    let active = -1;
+    for (let k = 0; k < ctx.cards.length; k++) {
+      const c = ctx.cards[k];
+      const rowY = Math.max(c.top - t.ASTRO_ABOVE_CARDS, 96);
+      if (ax >= c.left - 8 && ax <= c.right + 8 && Math.abs(ay - rowY) < 46) { active = k; break; }
+    }
+    ay += Math.sin(p * Math.PI * 7) * 7 + (active >= 0 ? 12 : 0);
     const swFade = clamp01(tt / 0.05);
     const px = hold.x - 0.02 * ctx.W, py = hold.y + 0.02 * ctx.H;
     const mx = (px + ax) / 2, my = Math.max(py, ay) + 0.05 * ctx.H;
@@ -61,12 +111,15 @@ export function missionFrame(p, ctx, t) {
     };
   }
 
-  // handoff
+  // handoff — astronaut returns from wherever the tour ended toward the capsule
   const ht = clamp01((p - t.TOUR_END) / (1 - t.TOUR_END));
-  const ax = lerp(ctx.cards[n - 1].cx, hold.x - 0.04 * ctx.W, easeOut(ht));
   return {
     s2: { x: hold.x, y: hold.y, rot: 198, opacity: 1 },
-    astro: { x: ax, y: bandY - ht * 0.05 * ctx.H, rot: -4, scale: t.ASTRO_SCALE, opacity: clamp01(1 - ht * 1.6) },
+    astro: {
+      x: lerp(endWp.x, hold.x - 0.04 * ctx.W, easeOut(ht)),
+      y: lerp(endWp.y, hold.y + 0.05 * ctx.H, easeOut(ht)),
+      rot: -4, scale: t.ASTRO_SCALE, opacity: clamp01(1 - ht * 1.6),
+    },
     tether: { d: "", opacity: clamp01(1 - ht * 2) },
     activeCard: -1,
     orbit: { opacity: ht * 0.8, lineOpacity: ht * 0.55 },
@@ -113,6 +166,19 @@ export function buildSpacewalk(els, t, hooks = {}) {
     if (els.s2Flame) els.s2Flame.style.opacity = 0;     // engines cold on the drift
   } });
 
+  // When the pinned Skills column is taller than the viewport (phones), pan it
+  // up in sync with the tour so the card being visited is always on screen.
+  // The astronaut tracks the pan for free — card rects are read live per frame.
+  const panFor = (p) => {
+    if (!els.skillsFix) return 0;
+    const visible = window.innerHeight * (1 - t.SKILLS_PIN_TOP_FRAC) - 24;
+    const panMax = Math.max(0, els.skillsFix.offsetHeight - visible);
+    if (p < t.TOUR_END) return panMax * easeInOut(clamp01(p / t.TOUR_END));
+    // handoff: pan back down so the pin releases with the content in natural flow
+    return panMax * (1 - easeInOut(clamp01((p - t.TOUR_END) / (1 - t.TOUR_END))));
+  };
+  const resetPan = () => { if (els.skillsFix) els.skillsFix.style.transform = ""; };
+
   // tour + handoff: spans the Skills pin exactly
   const mi = { p: 0 };
   const miTl = gsap.timeline({
@@ -121,12 +187,15 @@ export function buildSpacewalk(els, t, hooks = {}) {
       start: () => `top ${(t.SKILLS_PIN_TOP_FRAC * 100).toFixed(1)}%`,
       end: () => `+=${pinEnd(t.SKILLS_PIN_DUR_VH, window.innerHeight)}`,
       scrub: 0.9, invalidateOnRefresh: true,
-      onLeave: clearCards, onLeaveBack: clearCards,
+      onLeave: () => { clearCards(); resetPan(); },
+      onLeaveBack: () => { clearCards(); resetPan(); },
     },
   });
   miTl.to(mi, { p: 1, ease: "none", duration: 1, onUpdate: () => {
     const sp = miTl.scrollTrigger.progress;
-    if (sp <= 0) return;
+    if (sp <= 0) { resetPan(); return; }
+    const pan = panFor(mi.p);
+    if (pan > 0) els.skillsFix.style.transform = `translateY(${(-pan).toFixed(1)}px)`;
     const ctx = ctxOf();
     const f = missionFrame(mi.p, ctx, t);
     place(els.astro, f.astro);

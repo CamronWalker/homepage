@@ -79,6 +79,7 @@ export const MOBILE = {
   PIN_TOP_FRAC: 0.34,
   ROCKET_Y_FRAC: 0.10,
   SKILLS_PIN_TOP_FRAC: 0.04,
+  SKILLS_PIN_DUR_VH: 2.3,   // longer pin: the column tour pans 4 stacked cards through view
   ASTRO_ABOVE_CARDS: 24,
 };
 

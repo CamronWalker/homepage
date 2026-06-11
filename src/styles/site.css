@@ -143,9 +143,9 @@ section { position: relative; }
 .land-globe { position: absolute; z-index: 1; right: -8%; bottom: -20%;
   width: clamp(440px, 48vw, 880px); aspect-ratio: 1 / 1; pointer-events: none; opacity: .96; }
 .land-globe svg { width: 100%; height: 100%; display: block; overflow: visible; }
-@media (max-width: 920px) {
-  .contact-fix { min-height: 0; }
-  .land-globe { display: none; }   /* restored on mobile by the Task-9 choreography pass */
+@media (max-width: 768px) {
+  /* the mission plays on phones too — globe smaller, pegged to the corner */
+  .land-globe { width: clamp(300px, 78vw, 440px); right: -14%; bottom: -8%; }
 }
 
 
@@ -322,10 +322,7 @@ html.js .reveal.d1 { transition-delay: .08s; } html.js .reveal.d2 { transition-d
 
 /* ============ RESPONSIVE ============ */
 @media (max-width: 920px) {
-  .hero-launch { height: auto; }
-  .hero { position: static; height: auto; min-height: 0; padding: 56px 0 72px; }
   .hero-inner { grid-template-columns: 1fr; }
-  .flight { display: none; }
   .ann { display: none; }
   .proj-grid { grid-template-columns: repeat(2, 1fr); }
   .skills-grid { grid-template-columns: repeat(2, 1fr); }
@@ -336,12 +333,20 @@ html.js .reveal.d1 { transition-delay: .08s; } html.js .reveal.d2 { transition-d
   .nav-links.open { display: flex; position: absolute; top: 100%; right: 16px; flex-direction: column;
     background: var(--cw-white); border: 1px solid var(--cw-line); border-radius: var(--cw-r); padding: 14px 20px; box-shadow: var(--cw-shadow-2); gap: 14px; }
 }
+@media (max-width: 768px) {
+  /* launch cast scaled to the phone viewport */
+  .fl-launch { width: clamp(150px, 46vw, 320px); right: 2vw; }
+  .fl-count { right: 52vw; font-size: clamp(40px, 15vw, 64px); top: 56%; }
+}
 @media (max-width: 600px) {
   .cw-wrap { padding: 0 22px; }
   .hero-inner { padding: 40px 22px; }
   .proj-grid { grid-template-columns: 1fr; }
   .skills-grid { grid-template-columns: 1fr; }
   .ann { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .flight, .pin-grid { display: none; }
 }
 
 /* photo placeholder (replaces design-tool image-slot) */

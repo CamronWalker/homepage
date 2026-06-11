@@ -52,6 +52,28 @@ describe("spacewalk tour", () => {
   });
 });
 
+describe("mobile column tour", () => {
+  const M = { ...T, ASTRO_ABOVE_CARDS: 24 };
+  const mctx = { W: 390, H: 844, cards: [
+    { cx: 195, cy: 300, top: 260, bottom: 340, left: 20, right: 370 },
+    { cx: 195, cy: 560, top: 520, bottom: 600, left: 20, right: 370 },
+    { cx: 195, cy: 820, top: 780, bottom: 860, left: 20, right: 370 },
+  ], cardsTop: 260 };
+  it("sweeps top to bottom down the stacked column, hugging it", () => {
+    const early = missionFrame(0.25, mctx, M), late = missionFrame(0.6, mctx, M);
+    expect(late.astro.y).toBeGreaterThan(early.astro.y);
+    expect(Math.abs(late.astro.x - early.astro.x)).toBeLessThan(80);
+  });
+  it("every stacked card is visited", () => {
+    const visited = new Set();
+    for (let p = 0; p < M.TOUR_END; p += 0.002) {
+      const f = missionFrame(p, mctx, M);
+      if (f.activeCard >= 0) visited.add(f.activeCard);
+    }
+    expect([...visited].sort()).toEqual([0, 1, 2]);
+  });
+});
+
 describe("handoff", () => {
   it("astronaut fades out; ship holds at capsule height ON the lane (no jump into phase 4)", () => {
     const f = missionFrame(1, ctx, T);
