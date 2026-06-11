@@ -78,26 +78,27 @@ export function buildLaunch(els, t) {
   });
 
   const cd = { p: 0 };
-  gsap.timeline({
+  const cdTl = gsap.timeline({
     scrollTrigger: { trigger: "#top", start: "top top", end: cdEnd, scrub: 0.6, invalidateOnRefresh: true },
-  }).to(cd, { p: 1, ease: "none", duration: 1, onUpdate: () => applyCountdown(countdownFrame(cd.p), cd.p, els) });
+  });
+  cdTl.to(cd, { p: 1, ease: "none", duration: 1, onUpdate: () => {
+    if (cdTl.scrollTrigger.progress >= 1) return;   // climb (or transit) owns the cast now
+    applyCountdown(countdownFrame(cd.p), cd.p, els);
+  } });
 
   // climb: from hero-pin release (work top at viewport bottom) to work top at viewport top
   const cl = { p: 0 };
-  gsap.timeline({
+  const clTl = gsap.timeline({
     scrollTrigger: { trigger: "#work", start: "top bottom", end: "top top", scrub: 0.9, invalidateOnRefresh: true },
-  }).to(cl, {
+  });
+  clTl.to(cl, {
     p: 1, ease: "none", duration: 1,
     onUpdate: () => {
+      if (clTl.scrollTrigger.progress >= 1) return;   // stage manager masks the cast past here
       const svgH = els.flLaunch.getBoundingClientRect().height || 500;
       applyClimb(climbFrame(cl.p, { H: window.innerHeight, svgH, tilt: t.LAUNCH_TILT }), els);
     },
   });
 
-  // transit: once Work owns the viewport the launch cast is gone
-  ScrollTrigger.create({
-    trigger: "#work", start: "top top",
-    onEnter: () => { els.flLaunch.style.opacity = 0; els.flPad.style.opacity = 0; if (els.lFlame) els.lFlame.style.opacity = 0; },
-    onLeaveBack: () => { els.flLaunch.style.opacity = 1; },
-  });
+  return { climb: clTl.scrollTrigger };   // the stage manager masks the launch cast past this
 }

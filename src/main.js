@@ -7,6 +7,8 @@ import { createPin } from "./mission/pins.js";
 import { TUNABLES } from "./mission/tunables.js";
 import { refreshCtx } from "./mission/context.js";
 import { buildLaunch } from "./mission/launch.js";
+import { buildSeparation } from "./mission/separation.js";
+import { createStageManager } from "./mission/stage.js";
 
 gsap.registerPlugin(ScrollTrigger, MotionPathPlugin, DrawSVGPlugin);
 // normalize only on touch-only devices (iOS address-bar/momentum resync); on
@@ -32,10 +34,14 @@ mm.add(
     if (reduce || mobile) { return; }              // CSS hides .flight ≤920 / reduced motion
     const pinGridEl = document.getElementById("pinGrid");
     const onEnter = (self) => { if (self.isActive) refreshCtx(); };
-    buildLaunch(els, TUNABLES);
+    const refs = {};
+    Object.assign(refs, buildLaunch(els, TUNABLES));
+    Object.assign(refs, buildSeparation(els, TUNABLES));
+    const removeStage = createStageManager(els, refs);
     createPin({ trigger: ".about-pin",   topFrac: TUNABLES.PIN_TOP_FRAC,        durVH: TUNABLES.PIN_DUR_VH,        pinGridEl, onToggle: onEnter });
     createPin({ trigger: ".skills-pin",  topFrac: TUNABLES.SKILLS_PIN_TOP_FRAC, durVH: TUNABLES.SKILLS_PIN_DUR_VH, pinGridEl, onToggle: onEnter });
     createPin({ trigger: ".contact-pin", topFrac: TUNABLES.FOOT_PIN_TOP_FRAC,   durVH: TUNABLES.FOOT_PIN_DUR_VH,   pinGridEl, onToggle: onEnter });
+    return () => removeStage();            // matchMedia cleanup on breakpoint change
   }
 );
 
