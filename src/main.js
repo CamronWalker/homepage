@@ -9,6 +9,7 @@ import { refreshCtx } from "./mission/context.js";
 import { buildLaunch } from "./mission/launch.js";
 import { buildSeparation } from "./mission/separation.js";
 import { buildSpacewalk } from "./mission/spacewalk.js";
+import { buildLanding } from "./mission/landing.js";
 import { createStageManager } from "./mission/stage.js";
 
 gsap.registerPlugin(ScrollTrigger, MotionPathPlugin, DrawSVGPlugin);
@@ -36,10 +37,14 @@ mm.add(
     const pinGridEl = document.getElementById("pinGrid");
     const onEnter = (self) => { if (self.isActive) refreshCtx(); };
     const refs = {};
+    const hooks = {};                                          // late-bound cross-phase hooks
     Object.assign(refs, buildLaunch(els, TUNABLES));
     Object.assign(refs, buildSeparation(els, TUNABLES));
-    Object.assign(refs, buildSpacewalk(els, TUNABLES, {}));   // laneAt wired by phase 4
-    refs.s2Owners = [refs.separation, refs.coast, refs.mission];
+    Object.assign(refs, buildSpacewalk(els, TUNABLES, hooks));
+    const landing = buildLanding(els, TUNABLES, { missionST: refs.mission });
+    Object.assign(refs, landing.refs);
+    hooks.laneAt = landing.laneAt;                             // phase-3 handoff rides phase-4 geometry
+    refs.s2Owners = [refs.separation, refs.coast, refs.mission, refs.orbit, refs.landing];
     const removeStage = createStageManager(els, refs);
     createPin({ trigger: ".about-pin",   topFrac: TUNABLES.PIN_TOP_FRAC,        durVH: TUNABLES.PIN_DUR_VH,        pinGridEl, onToggle: onEnter });
     createPin({ trigger: ".skills-pin",  topFrac: TUNABLES.SKILLS_PIN_TOP_FRAC, durVH: TUNABLES.SKILLS_PIN_DUR_VH, pinGridEl, onToggle: onEnter });

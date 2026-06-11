@@ -27,6 +27,8 @@ export function createStageManager(els, refs) {
     [["s2", "s2Flame"], (r) => (r.s2Owners || [r.separation]).every(out)],
     // astronaut + tether exist only inside the spacewalk pin
     [["astro", "flLink"], (r) => out(r.mission)],
+    // orbit line + landing glow live from the handoff through the pegged done state
+    [["flOrbit", "flGlow"], (r) => [r.mission, r.orbit, r.landing, r.done].every(out)],
   ];
 
   const tick = () => {

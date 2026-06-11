@@ -82,7 +82,7 @@ function place(el, o) {
   el.style.opacity = o.opacity;
 }
 
-export function buildSpacewalk(els, t, { laneAt } = {}) {
+export function buildSpacewalk(els, t, hooks = {}) {
   const ctxOf = () => {
     const cards = [...els.skillCards].map((el) => {
       const r = el.getBoundingClientRect();
@@ -138,8 +138,8 @@ export function buildSpacewalk(els, t, { laneAt } = {}) {
     if (els.orbitDesc) els.orbitDesc.style.opacity = 0;
     if (els.s2Flame) els.s2Flame.style.opacity = 0;
     // ship: hold pose blended onto the orbit lane (lane pose resolved by phase 4's geometry)
-    if (f.ship.laneBlend > 0 && laneAt) {
-      const lane = laneAt(f.ship.y);
+    if (f.ship.laneBlend > 0 && hooks.laneAt) {
+      const lane = hooks.laneAt(f.ship.y);
       place(els.s2, {
         x: lerp(f.ship.x, lane.x, f.ship.laneBlend),
         y: f.ship.y,
