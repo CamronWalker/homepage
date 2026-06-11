@@ -12,6 +12,8 @@ import { buildSpacewalk } from "./mission/spacewalk.js";
 import { buildLanding } from "./mission/landing.js";
 import { createStageManager } from "./mission/stage.js";
 import { initProjectsUI } from "./ui/projects-modal.js";
+import { initPlane } from "./fx/plane.js";
+import { initContact } from "./ui/contact.js";
 
 gsap.registerPlugin(ScrollTrigger, MotionPathPlugin, DrawSVGPlugin);
 // normalize only on touch-only devices (iOS address-bar/momentum resync); on
@@ -119,3 +121,7 @@ setTimeout(revealInView, 400);
 
 /* ---------- projects modal ---------- */
 initProjectsUI();
+
+/* ---------- paper-airplane download + contact reveal ---------- */
+initPlane();
+initContact();
