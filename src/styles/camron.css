@@ -1,0 +1,122 @@
+/* Camron Walker — personal brand tokens
+   "Graphite & Blue Pencil": off-white paper, graphite pencil sketches,
+   Camron Blue (#1093C9) used sparingly like a blue colored-pencil accent. */
+
+:root {
+  /* Camron Blue + tints */
+  --cw-blue: #1093C9;
+  --cw-blue-ink: #0B6E97;     /* darker, for hover / pressed */
+  --cw-blue-soft: #E1F1F8;    /* wash */
+  --cw-blue-line: #8FCDE6;    /* light pencil-blue line */
+
+  /* Graphite / paper neutrals */
+  --cw-ink: #1C1E22;          /* near-black headline ink */
+  --cw-graphite: #44484E;     /* body graphite */
+  --cw-graphite-2: #6B7077;   /* secondary */
+  --cw-pencil: #9AA0A7;       /* light pencil / muted */
+  --cw-line: #D9DCE0;         /* hairline */
+  --cw-line-soft: #ECEEF1;
+  --cw-paper: #FBFAF7;        /* warm off-white paper */
+  --cw-paper-2: #F4F2EC;      /* slightly deeper paper panel */
+  --cw-white: #FFFFFF;
+
+  /* Type */
+  --cw-display: "Space Grotesk", system-ui, sans-serif;
+  --cw-body: "Mulish", system-ui, sans-serif;
+  --cw-mono: "JetBrains Mono", ui-monospace, monospace;
+  --cw-hand: "Caveat", cursive;
+
+  /* Spacing base 4px */
+  --cw-r: 4px;     /* tight radius */
+  --cw-r-lg: 10px;
+
+  --cw-shadow-1: 0 1px 2px rgba(28,30,34,.06), 0 2px 8px rgba(28,30,34,.05);
+  --cw-shadow-2: 0 6px 24px rgba(28,30,34,.10);
+
+  --cw-ease: cubic-bezier(.22,.61,.36,1);
+}
+
+* { box-sizing: border-box; }
+
+.cw {
+  margin: 0;
+  background-color: var(--cw-paper);
+  background-image:
+    linear-gradient(var(--cw-line-soft) 1px, transparent 1px),
+    linear-gradient(90deg, var(--cw-line-soft) 1px, transparent 1px);
+  background-size: 30px 30px;
+  color: var(--cw-graphite);
+  font-family: var(--cw-body);
+  font-size: 17px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---- type helpers ---- */
+.cw-eyebrow {
+  font-family: var(--cw-mono);
+  font-size: 12px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--cw-blue-ink);
+  font-weight: 500;
+}
+.cw-h1 {
+  font-family: var(--cw-display);
+  font-weight: 700;
+  color: var(--cw-ink);
+  letter-spacing: -.02em;
+  line-height: .98;
+  margin: 0;
+}
+.cw-h2 {
+  font-family: var(--cw-display);
+  font-weight: 600;
+  color: var(--cw-ink);
+  letter-spacing: -.01em;
+  line-height: 1.05;
+  margin: 0;
+}
+.cw-lead {
+  font-size: 20px;
+  line-height: 1.55;
+  color: var(--cw-graphite);
+}
+.cw-hand {
+  font-family: var(--cw-hand);
+  color: var(--cw-blue);
+  font-size: 26px;
+  line-height: 1;
+}
+.cw-mono { font-family: var(--cw-mono); }
+
+/* ---- buttons ---- */
+.cw-btn {
+  display: inline-flex; align-items: center; gap: 9px;
+  font-family: var(--cw-display); font-weight: 600; font-size: 15px;
+  padding: 13px 20px; border-radius: var(--cw-r);
+  border: 1.5px solid var(--cw-ink); background: var(--cw-ink); color: #fff;
+  cursor: pointer; text-decoration: none; transition: all .2s var(--cw-ease);
+}
+.cw-btn:hover { background: var(--cw-blue-ink); border-color: var(--cw-blue-ink); transform: translateY(-1px); }
+.cw-btn--ghost { background: transparent; color: var(--cw-ink); }
+.cw-btn--ghost:hover { background: var(--cw-blue-soft); border-color: var(--cw-blue-ink); color: var(--cw-blue-ink); transform: translateY(-1px); }
+
+/* ---- sketch stroke (rough-ish) ---- */
+.cw-sketch { stroke: var(--cw-graphite); stroke-width: 2; fill: none;
+  stroke-linecap: round; stroke-linejoin: round; }
+.cw-sketch--blue { stroke: var(--cw-blue); }
+.cw-sketch--thin { stroke-width: 1.4; }
+
+/* dashed flight path */
+.cw-flight { stroke: var(--cw-blue); stroke-width: 2; fill: none;
+  stroke-dasharray: 7 9; stroke-linecap: round; opacity: .9; }
+
+/* graph paper background */
+.cw-graph {
+  background-color: var(--cw-paper);
+  background-image:
+    linear-gradient(var(--cw-line-soft) 1px, transparent 1px),
+    linear-gradient(90deg, var(--cw-line-soft) 1px, transparent 1px);
+  background-size: 26px 26px;
+}

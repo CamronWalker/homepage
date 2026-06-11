@@ -1,0 +1,364 @@
+/* camronwalker.com — page layout + components (tokens live in camron.css) */
+
+html { scroll-behavior: smooth; }
+body.cw { overflow-x: clip; }   /* clip (not hidden) so it never becomes a scroll container — keeps position:sticky working */
+.cw-wrap { max-width: 1180px; margin: 0 auto; padding: 0 40px; }
+section { position: relative; }
+
+/* ============ NAV ============ */
+.nav {
+  position: sticky; top: 0; z-index: 60;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 40px;
+  background: color-mix(in srgb, var(--cw-paper) 86%, transparent);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid transparent;
+  transition: border-color .3s var(--cw-ease), background .3s var(--cw-ease);
+}
+.nav.is-stuck { border-bottom-color: var(--cw-line); }
+.nav-brand { display: flex; align-items: center; gap: 11px; text-decoration: none; }
+.nav-mark {
+  display: grid; place-items: center; width: 36px; height: 36px;
+  background: var(--cw-blue); border-radius: 5px;
+  font-family: var(--cw-display); font-weight: 700; color: #fff; font-size: 14px;
+}
+.nav-name { font-family: var(--cw-display); font-weight: 600; color: var(--cw-ink); font-size: 16px; }
+.nav-links { display: flex; align-items: center; gap: 28px; }
+.nav-links a {
+  font-family: var(--cw-display); font-weight: 500; font-size: 15px;
+  color: var(--cw-graphite); text-decoration: none; position: relative; padding: 4px 0;
+}
+.nav-links a::after {
+  content: ""; position: absolute; left: 0; right: 100%; bottom: -2px; height: 2px;
+  background: var(--cw-blue); transition: right .25s var(--cw-ease);
+}
+.nav-links a:hover::after, .nav-links a.active::after { right: 0; }
+.nav-burger { display: none; background: none; border: none; cursor: pointer; padding: 6px; color: var(--cw-ink); }
+
+/* ============ HERO ============ */
+.hero-launch { position: relative; }
+.hero {
+  position: sticky; top: 0; height: 100vh; min-height: 600px; overflow: hidden;
+  background-color: var(--cw-paper);
+  background-image:
+    linear-gradient(var(--cw-line-soft) 1px, transparent 1px),
+    linear-gradient(90deg, var(--cw-line-soft) 1px, transparent 1px);
+  background-size: 30px 30px;
+}
+.hero-inner { max-width: 1180px; margin: 0 auto; padding: 64px 40px 40px;
+  display: block; min-height: 100%; }
+.hero-copy { position: relative; z-index: 5; max-width: 620px; padding-top: clamp(12px, 6vh, 64px); }
+.hero h1 {
+  font-family: var(--cw-display); font-weight: 700; color: var(--cw-ink);
+  font-size: clamp(56px, 9vw, 104px); line-height: .9; letter-spacing: -.03em; margin: 18px 0 0;
+}
+.hero-lead { font-size: clamp(18px, 2vw, 22px); line-height: 1.5; color: var(--cw-graphite); max-width: 480px; margin: 26px 0 0; }
+.hero-actions { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 36px; }
+
+/* handwritten annotations */
+.ann { position: absolute; z-index: 6; font-family: var(--cw-hand); color: var(--cw-blue);
+  font-size: clamp(22px, 2.4vw, 30px); line-height: 1.05; pointer-events: none; }
+.ann svg { position: absolute; overflow: visible; }
+
+/* ============ FLIGHT LAYER — scroll-choreographed mission ============ */
+/* A single fixed overlay. JS drives the whole journey off scroll position:
+   launch (out the top, tilting left) → staging (horizontal, L→R, 1st stage
+   sheds) → coast + spacewalk (R→L) → re-entry (top-right dive to the Earth
+   in the footer). Pointer-events off so it never blocks the page. */
+.flight { position: fixed; inset: 0; overflow: hidden; pointer-events: none; z-index: 50; }
+
+.fl-launch { position: absolute; right: 3vw; bottom: 0; width: clamp(320px, 42vw, 480px);
+  height: auto; overflow: visible; display: block; }
+.fl-launch svg, .fl-obj svg { overflow: visible; }
+#stackG { will-change: transform; }
+#stackShake { transform-box: fill-box; transform-origin: center;
+  animation: rkRumble .07s steps(2) infinite; }
+@keyframes rkRumble {
+  0%   { transform: translateX(calc(var(--rk-shake, 0px) * -1)); }
+  100% { transform: translateX(var(--rk-shake, 0px)); }
+}
+.fl-pad { transition: opacity .15s linear; }
+
+/* big hand-drawn launch countdown, beside the rocket */
+.fl-count { position: absolute; right: clamp(380px, 48vw, 660px); top: 60%;
+  font-family: var(--cw-hand); color: var(--cw-blue); line-height: .8; text-align: right;
+  font-size: clamp(54px, 9vw, 120px); font-weight: 700; letter-spacing: -.01em;
+  white-space: nowrap; opacity: 0; pointer-events: none;
+  transform: translateY(-50%) rotate(-4deg); transform-origin: right center; }
+.fl-count.liftoff { color: var(--cw-ink); white-space: normal;
+  font-size: clamp(46px, 7.5vw, 104px); }
+
+/* persistent "keep scrolling" tip */
+.fl-tip { position: absolute; left: 50%; bottom: 3.5vh; transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 1px;
+  font-family: var(--cw-hand); color: var(--cw-blue); font-size: clamp(20px, 2vw, 27px);
+  opacity: 0; pointer-events: none; }
+.fl-tip svg { overflow: visible; animation: tipBob 1.4s ease-in-out infinite; }
+@keyframes tipBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(5px); } }
+#flScale { transform-box: fill-box; transform-origin: center top; }
+
+/* launch runway — transparent scroll room; height set by JS from the tweak */
+.launch-runway { height: 0; pointer-events: none; }
+
+.fl-obj { position: absolute; left: 0; top: 0; opacity: 0; will-change: transform, opacity; }
+.fl-obj svg { width: 100%; height: auto; display: block; }
+#flAstro { width: clamp(104px, 12vw, 156px); }
+#flSat { width: clamp(96px, 10vw, 140px); }
+/* widths of the rocket pieces are set in JS to the LAUNCH scale so Phase-2 matches Phase-1 */
+#flMated { width: clamp(104px, 12vw, 168px); }
+#flAstro  { width: clamp(74px, 8.5vw, 118px); }
+#flSat    { width: clamp(120px, 14vw, 210px); }
+
+/* the gap where the rocket coasts in from the left before staging — just enough room for it */
+.mission-gap { position: relative; height: 16vh; background: transparent;
+  display: flex; align-items: flex-start; justify-content: center; }
+.gap-note { position: sticky; top: 18vh; font-family: var(--cw-mono);
+  font-size: 12px; letter-spacing: .28em; text-transform: uppercase;
+  color: var(--cw-graphite-2); opacity: .5; }
+
+/* About is pinned by JS (site.js) during stage separation — a robust replacement for
+   position:sticky, which is unreliable when the content is taller than the viewport.
+   JS toggles .about-fix between absolute (in-flow, top of the spacer) and fixed (frozen). */
+.sec.about { padding-top: 28px; }
+.about-pin { position: relative; }            /* height set by JS = content + pin duration */
+.about-fix { left: 0; right: 0; width: 100%; z-index: 2; }   /* z:2 keeps it above the frozen grid */
+@media (max-width: 920px) {
+  .about-pin { height: auto !important; }
+  .about-fix { position: static !important; top: auto !important; }
+}
+
+/* Skills is pinned by JS during the spacewalk (same mechanism + frozen grid as About). */
+.skills-pin { position: relative; }            /* height set by JS = content + pin duration */
+.skills-fix { left: 0; right: 0; width: 100%; z-index: 2; }
+@media (max-width: 920px) {
+  .skills-pin { height: auto !important; }
+  .skills-fix { position: static !important; top: auto !important; }
+}
+/* the skill card the astronaut is visiting lifts + gains a blue accent */
+.skill-cat { transition: transform .3s var(--cw-ease), box-shadow .3s var(--cw-ease), border-color .3s var(--cw-ease); }
+.skill-cat.sk-active { transform: translateY(-6px); border-color: var(--cw-blue);
+  box-shadow: 0 12px 30px -14px color-mix(in srgb, var(--cw-blue) 60%, transparent); }
+.skill-cat.sk-active .sc-icon { color: var(--cw-blue); }
+
+/* Contact ("Let's build something") is pinned for the LANDING: the section freezes with
+   the globe in view (lower-right) while the rocket re-enters and shrinks to a dot — you
+   stick around on this scene and keep scrolling to advance the animation. */
+.sec.contact { position: relative; }
+.contact-pin { position: relative; }           /* height set by JS = content + landing pin */
+.contact-fix { left: 0; right: 0; width: 100%; z-index: 2; overflow: hidden;
+  display: flex; align-items: center; min-height: 100vh; }
+.contact-fix .cw-wrap { position: relative; z-index: 2; width: 100%; }
+/* globe PEGGED to the bottom-right corner — it stays put while the rocket descends to it */
+.land-globe { position: absolute; z-index: 1; right: -8%; bottom: -20%;
+  width: clamp(440px, 48vw, 880px); aspect-ratio: 1 / 1; pointer-events: none; opacity: .96; }
+.land-globe svg { width: 100%; height: 100%; display: block; overflow: visible; }
+@media (max-width: 920px) {
+  .contact-pin { height: auto !important; }
+  .contact-fix { position: static !important; top: auto !important; min-height: 0; }
+  .land-globe { display: none; }
+}
+
+
+/* Frozen graph-paper layer. The grid normally lives on body.cw and scrolls with the
+   page; during the About pin the content is frozen but the body grid would keep moving
+   (looks wrong). This fixed layer carries an identical grid, switched ON only during the
+   pin so the paper FREEZES with the words — matching the Phase-1 launch behaviour.
+   site.js aligns its background-position to the grid phase at freeze, and the pin length
+   is snapped to a multiple of the 30px grid so there is no jump on entry/exit. */
+.pin-grid { position: fixed; inset: 0; z-index: 1; opacity: 0; pointer-events: none;
+  background-color: var(--cw-paper);
+  background-image:
+    linear-gradient(var(--cw-line-soft) 1px, transparent 1px),
+    linear-gradient(90deg, var(--cw-line-soft) 1px, transparent 1px);
+  background-size: 30px 30px; }
+
+.fl-link { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; opacity: 0; }
+#flTether { fill: none; stroke: var(--cw-blue); stroke-width: 1.6; stroke-dasharray: 4 6; stroke-linecap: round; opacity: .8; }
+
+/* ── PHASE 4 · Earth + orbit ───────────────────────────────────────────────
+   The Earth is a big globe anchored off the RIGHT edge so only its left limb
+   arcs into view; #globeSpin (inside earthNA) rotates to bring the Pacific
+   coast around to the landing point. The orbit SVG sits in viewport-pixel
+   space (no viewBox) so JS can lay the dashed paths + glow directly in px. */
+.fl-earth { position: fixed; top: 0; left: 0; width: 880px; height: 880px; opacity: 0; pointer-events: none; will-change: opacity, transform; }
+.fl-earth svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.fl-orbit { position: fixed; inset: 0; width: 100%; height: 100%; opacity: 0; pointer-events: none; overflow: visible; will-change: opacity; }
+.fl-orbit-fly  { fill: none; stroke: var(--cw-blue); stroke-width: 2; stroke-dasharray: 7 9; stroke-linecap: round; opacity: .38; }
+.fl-orbit-desc { fill: none; stroke: var(--cw-blue); stroke-width: 2.4; stroke-dasharray: 7 9; stroke-linecap: round; opacity: 0; }
+.fl-glow { fill: #FF7A3C; opacity: 0; }
+
+.fl-flame { opacity: 0; transform-box: fill-box; transform-origin: top center; }
+.fl-fl-inner { transform-box: fill-box; transform-origin: top center; animation: flicker .12s steps(2) infinite; }
+#flS2Flame.reentry { transform: scaleY(1.7) scaleX(.82); }
+#flS2Flame.burn { transform: scale(.55); }   /* retro-burn: short, punchy */
+
+/* gentle, autonomous spacewalk drift layered on top of the scroll position */
+.fl-astro-spin { transform-box: fill-box; transform-origin: 65px 70px; animation: astrofloat 7s ease-in-out infinite; }
+
+@keyframes flicker { 0% { transform: scaleY(1) scaleX(1); } 100% { transform: scaleY(.82) scaleX(1.12); } }
+@keyframes astrofloat {
+  0%   { transform: rotate(-7deg) translateY(-4px); }
+  50%  { transform: rotate(6deg)  translateY(5px); }
+  100% { transform: rotate(-7deg) translateY(-4px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fl-fl-inner, .fl-astro-spin, #stackShake, .fl-tip svg { animation: none; }
+}
+
+/* ============ SECTION HEADERS ============ */
+.sec { padding: clamp(64px, 9vw, 110px) 0; }
+.sec-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; margin-bottom: 48px; flex-wrap: wrap; }
+.sec-title { font-family: var(--cw-display); font-weight: 700; color: var(--cw-ink); font-size: clamp(32px, 4.4vw, 52px); letter-spacing: -.02em; line-height: 1; margin: 10px 0 0; }
+.sec-kicker { max-width: 420px; color: var(--cw-graphite-2); font-size: 16px; }
+
+/* ============ PROJECTS ============ */
+.proj-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 26px; }
+.proj-card {
+  display: flex; flex-direction: column; background: var(--cw-white);
+  border: 1px solid var(--cw-line); border-radius: var(--cw-r); overflow: hidden;
+  box-shadow: var(--cw-shadow-1); transition: transform .25s var(--cw-ease), box-shadow .25s var(--cw-ease), border-color .25s;
+  text-decoration: none; color: inherit;
+}
+.proj-card:hover { transform: translateY(-4px); box-shadow: var(--cw-shadow-2); border-color: var(--cw-blue-line); }
+.proj-media { position: relative; aspect-ratio: 16/10; background: var(--cw-paper-2); }
+.proj-media image-slot { width: 100%; height: 100%; display: block; }
+.proj-tagrow { position: absolute; top: 12px; left: 12px; z-index: 3; display: flex; gap: 6px; }
+.proj-chip { font-family: var(--cw-mono); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase;
+  background: color-mix(in srgb, var(--cw-ink) 88%, transparent); color: #fff; padding: 4px 8px; border-radius: 3px; }
+.proj-body { padding: 18px 20px 22px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+.proj-eyebrow { font-family: var(--cw-mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--cw-blue-ink); }
+.proj-name { font-family: var(--cw-display); font-weight: 600; font-size: 20px; color: var(--cw-ink); letter-spacing: -.01em; line-height: 1.1; }
+.proj-desc { font-size: 14.5px; color: var(--cw-graphite); line-height: 1.5; }
+.proj-meta { margin-top: auto; padding-top: 14px; display: flex; flex-wrap: wrap; gap: 6px 16px;
+  font-family: var(--cw-mono); font-size: 11.5px; color: var(--cw-graphite-2); letter-spacing: .02em; border-top: 1px dashed var(--cw-line); }
+.proj-meta b { color: var(--cw-ink); font-weight: 500; }
+.proj-link { margin-left: auto; color: var(--cw-blue-ink); display: inline-flex; align-items: center; gap: 4px; }
+
+.proj-more { margin-top: 34px; }
+.proj-more h4 { font-family: var(--cw-mono); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--cw-graphite-2); margin: 0 0 16px; }
+.proj-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0 40px; }
+.proj-row { display: grid; grid-template-columns: 1fr auto; gap: 16px; padding: 14px 0; border-top: 1px solid var(--cw-line); align-items: baseline; }
+.proj-row .pr-name { font-family: var(--cw-display); font-weight: 600; color: var(--cw-ink); font-size: 16px; }
+.proj-row .pr-sub { color: var(--cw-graphite-2); font-size: 13.5px; }
+.proj-row .pr-meta { font-family: var(--cw-mono); font-size: 12px; color: var(--cw-graphite-2); white-space: nowrap; }
+
+/* ============ ABOUT ============ */
+.about { background: transparent; }
+/* sketch portrait — melts into the paper via multiply blend + feathered PNG */
+.about-portrait { position: relative; float: right; width: clamp(170px, 22vw, 250px); margin: 4px 0 14px 28px; }
+.about-portrait img { display: block; width: 100%; height: auto; mix-blend-mode: multiply; }
+.about-portrait-note { position: absolute; left: -86px; bottom: 30%;
+  font-family: var(--cw-hand); color: var(--cw-blue); font-size: 26px; transform: rotate(-7deg); white-space: nowrap; }
+@media (max-width: 600px) {
+  .about-portrait { float: none; margin: 0 auto 20px; width: 200px; }
+  .about-portrait-note { display: none; }
+}
+.about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: start; }
+.about-lead { font-family: var(--cw-display); font-weight: 500; font-size: clamp(22px, 3vw, 30px); line-height: 1.3; color: var(--cw-ink); letter-spacing: -.01em; }
+.about-lead .hl { color: var(--cw-blue); }
+.about-body p { margin: 0 0 18px; font-size: 16.5px; line-height: 1.65; color: var(--cw-graphite); }
+.about-path { display: flex; flex-direction: column; gap: 0; margin-top: 8px; }
+.path-step { display: grid; grid-template-columns: 120px 1fr; gap: 18px; padding: 16px 0; border-top: 1px dashed var(--cw-line); }
+.path-step .ps-where { font-family: var(--cw-display); font-weight: 600; color: var(--cw-ink); font-size: 16px; }
+.path-step .ps-yr { font-family: var(--cw-mono); font-size: 12px; color: var(--cw-blue-ink); margin-top: 3px; }
+.path-step .ps-what { color: var(--cw-graphite); font-size: 14.5px; line-height: 1.5; }
+
+/* ============ SKILLS ============ */
+.skills-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+.skill-cat { border: 1px solid var(--cw-line); border-radius: var(--cw-r); padding: 24px 22px; background: var(--cw-white); }
+.skill-cat h4 { font-family: var(--cw-display); font-weight: 600; font-size: 16px; color: var(--cw-ink); margin: 0 0 4px; }
+.skill-cat .sc-icon { color: var(--cw-blue); margin-bottom: 12px; }
+.skill-cat ul { list-style: none; margin: 14px 0 0; padding: 0; display: flex; flex-direction: column; gap: 9px; }
+.skill-cat li { font-size: 14.5px; color: var(--cw-graphite); display: flex; align-items: center; gap: 9px; }
+.skill-cat li::before { content: ""; width: 6px; height: 6px; background: var(--cw-blue-line); border-radius: 1px; flex: none; transform: rotate(45deg); }
+
+/* ============ TIMELINE ============ */
+.tl { position: relative; max-width: 820px; }
+.tl::before { content: ""; position: absolute; left: 13px; top: 6px; bottom: 6px; width: 0;
+  border-left: 2px dashed var(--cw-blue-line); }
+.tl-item { position: relative; padding: 0 0 38px 52px; }
+.tl-item:last-child { padding-bottom: 0; }
+.tl-dot { position: absolute; left: 6px; top: 4px; width: 16px; height: 16px; border-radius: 50%;
+  background: var(--cw-white); border: 2.5px solid var(--cw-blue); }
+.tl-item.now .tl-dot { background: var(--cw-blue); }
+.tl-yr { font-family: var(--cw-mono); font-size: 12.5px; letter-spacing: .04em; color: var(--cw-blue-ink); }
+.tl-role { font-family: var(--cw-display); font-weight: 600; font-size: 19px; color: var(--cw-ink); margin: 4px 0 0; }
+.tl-org { color: var(--cw-graphite-2); font-size: 14.5px; margin-top: 2px; }
+.tl-note { color: var(--cw-graphite); font-size: 14.5px; line-height: 1.55; margin-top: 8px; max-width: 620px; }
+
+/* ============ CONTACT ============ */
+.contact { background: transparent; color: var(--cw-graphite); overflow: hidden; }
+.contact .cw-eyebrow { color: var(--cw-blue-ink); }
+.contact-grid { display: grid; grid-template-columns: 1.1fr .9fr; gap: 56px; align-items: center; }
+.contact h2 { font-family: var(--cw-display); font-weight: 700; font-size: clamp(34px, 5vw, 60px); line-height: .98; letter-spacing: -.02em; color: var(--cw-ink); margin: 12px 0 0; }
+.contact p.lead { color: var(--cw-graphite); font-size: 19px; line-height: 1.5; margin: 22px 0 0; max-width: 460px; }
+.contact-card { background: var(--cw-white); border: 1px solid var(--cw-line); border-radius: var(--cw-r-lg); padding: 30px; box-shadow: var(--cw-shadow-1); }
+.contact-row { display: flex; align-items: center; gap: 14px; padding: 16px 0; border-bottom: 1px solid var(--cw-line); }
+.contact-row:last-child { border-bottom: none; }
+.contact-row .ci { color: var(--cw-blue); flex: none; }
+.contact-row .clbl { font-family: var(--cw-mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--cw-graphite-2); }
+.contact-row .cval { font-family: var(--cw-display); font-weight: 500; font-size: 17px; color: var(--cw-ink); text-decoration: none; }
+.contact-row a.cval:hover { color: var(--cw-blue-ink); }
+
+/* ============ FOOTER ============ */
+.foot { position: relative; min-height: 120px; display: flex; align-items: flex-end;
+  background: transparent; border-top: none; }
+.foot-inner { position: relative; z-index: 3; display: flex; align-items: center; justify-content: space-between;
+  padding: 26px 40px; max-width: 1180px; margin: 0 auto; width: 100%;
+  font-family: var(--cw-mono); font-size: 12.5px; color: var(--cw-graphite-2); }
+
+/* ============ FLYING PLANE + DOWNLOAD BADGE ============ */
+.fly-path { position: fixed; inset: 0; z-index: 199; pointer-events: none; overflow: visible; }
+.fly-path-line { fill: none; stroke: var(--cw-pencil); stroke-width: 2; stroke-linecap: round; stroke-dasharray: 5 8; opacity: .85; }
+.fly-plane { position: fixed; top: 0; left: 0; z-index: 200; width: 42px; height: 30px; pointer-events: none; will-change: offset-distance, opacity; filter: drop-shadow(0 4px 8px rgba(28,30,34,.18)); }
+.fly-plane svg { width: 100%; height: 100%; }
+.dl-badge {
+  position: fixed; top: 14px; right: 18px; z-index: 201;
+  display: flex; align-items: center; gap: 9px;
+  background: var(--cw-ink); color: #fff; border-radius: 8px; padding: 10px 14px;
+  font-family: var(--cw-mono); font-size: 12.5px; box-shadow: var(--cw-shadow-2);
+  opacity: 0; transform: translateY(-12px) scale(.96); pointer-events: none;
+  transition: opacity .3s var(--cw-ease), transform .3s var(--cw-ease);
+}
+.dl-badge.show { opacity: 1; transform: translateY(0) scale(1); }
+.dl-badge .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--cw-blue); }
+.dl-badge .fname { color: #C7CDD3; }
+
+/* ============ SCROLL REVEAL ============ */
+html.js .reveal { opacity: 0; transform: translateY(22px); transition: opacity .7s var(--cw-ease), transform .7s var(--cw-ease); }
+html.js .reveal.in { opacity: 1; transform: none; }
+html.js .reveal.d1 { transition-delay: .08s; } html.js .reveal.d2 { transition-delay: .16s; } html.js .reveal.d3 { transition-delay: .24s; }
+@media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; transition: none; } }
+
+/* ============ RESPONSIVE ============ */
+@media (max-width: 920px) {
+  .hero-launch { height: auto; }
+  .hero { position: static; height: auto; min-height: 0; padding: 56px 0 72px; }
+  .hero-inner { grid-template-columns: 1fr; }
+  .flight { display: none; }
+  .ann { display: none; }
+  .proj-grid { grid-template-columns: repeat(2, 1fr); }
+  .skills-grid { grid-template-columns: repeat(2, 1fr); }
+  .about-grid, .contact-grid { grid-template-columns: 1fr; gap: 36px; }
+  .proj-list { grid-template-columns: 1fr; }
+  .nav-links { display: none; }
+  .nav-burger { display: block; }
+  .nav-links.open { display: flex; position: absolute; top: 100%; right: 16px; flex-direction: column;
+    background: var(--cw-white); border: 1px solid var(--cw-line); border-radius: var(--cw-r); padding: 14px 20px; box-shadow: var(--cw-shadow-2); gap: 14px; }
+}
+@media (max-width: 600px) {
+  .cw-wrap { padding: 0 22px; }
+  .hero-inner { padding: 40px 22px; }
+  .proj-grid { grid-template-columns: 1fr; }
+  .skills-grid { grid-template-columns: 1fr; }
+  .ann { display: none; }
+}
+
+/* photo placeholder (replaces design-tool image-slot) */
+.proj-photo { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  background:
+    linear-gradient(var(--cw-line-soft) 1px, transparent 1px),
+    linear-gradient(90deg, var(--cw-line-soft) 1px, transparent 1px);
+  background-size: 30px 30px; }
+.proj-photo-note { font-family: var(--cw-hand); color: var(--cw-graphite-2); font-size: 19px; transform: rotate(-4deg); }
+.proj-photo img { width: 100%; height: 100%; object-fit: cover; }
