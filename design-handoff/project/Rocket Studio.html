@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Camron Walker — Rocket Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Mulish:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="camron.css">
+<style>
+  html,body{margin:0;height:100%;}
+  #root{height:100vh;}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="astro_path.js"></script>
+<script src="land_path.js"></script>
+<script src="rockets.js"></script>
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel">
+function Frame({ html, w, h }) {
+  return <div style={{width:w, height:h}} dangerouslySetInnerHTML={{__html: html}} />;
+}
+function App() {
+  return (
+    <DesignCanvas>
+      <DCSection id="phases" title="Rocket mission — the four phases"
+        subtitle="One locked rocket design (A · pointed two-stage), shown through every beat of the scroll. Tell me what to fix in any phase and I'll tune it here, then push it back into the live page.">
+        <DCArtboard id="p1" label="Phase 1 · Launch — full stack lifts off the pad" width={520} height={620}>
+          <Frame html={window.ROCKETS.P1} w={520} h={620} />
+        </DCArtboard>
+        <DCArtboard id="p2" label="Phase 2 · Stage separation — booster falls away, 2nd stage ignites" width={520} height={620}>
+          <Frame html={window.ROCKETS.P2} w={520} h={620} />
+        </DCArtboard>
+        <DCArtboard id="p3" label="Phase 3 · Spacewalk — astronaut on EVA, tethered to the capsule" width={520} height={620}>
+          <Frame html={window.ROCKETS.P3} w={520} h={620} />
+        </DCArtboard>
+        <DCArtboard id="p4" label="Phase 4 · Re-entry — retro-burn slowing into the orbit, Earth on the right" width={520} height={620}>
+          <Frame html={window.ROCKETS.P4} w={520} h={620} />
+        </DCArtboard>
+      </DCSection>
+    </DesignCanvas>
+  );
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

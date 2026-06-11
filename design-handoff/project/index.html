@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Camron Walker — Construction Project Manager</title>
+<meta name="description" content="Camron Walker — construction project manager and scheduler. 13 years building public schools, civic landmarks, and historic preservation projects.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Mulish:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="camron.css">
+<link rel="stylesheet" href="site.css">
+</head>
+<body class="cw">
+
+<!-- ============ NAV ============ -->
+<header class="nav" id="nav">
+  <a class="nav-brand" href="#top">
+    <span class="nav-mark">CW</span>
+    <span class="nav-name">Camron Walker</span>
+  </a>
+  <button class="nav-burger" id="burger" aria-label="Menu">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+  </button>
+  <nav class="nav-links" id="navlinks">
+    <a href="#work">Work</a>
+    <a href="#about">About</a>
+    <a href="#skills">Skills</a>
+    <a href="#experience">Experience</a>
+    <a href="#contact">Contact</a>
+  </nav>
+</header>
+
+<!-- ============ FLIGHT LAYER (fixed, scroll-choreographed mission) ============ -->
+<div class="flight" id="flight" aria-hidden="true">
+
+  <!-- PHASE 1 · LAUNCH — studio rocket (pad/gantry + full stack injected from rockets.js) -->
+  <svg class="fl-launch" id="flLaunch" viewBox="0 0 600 660" fill="none">
+    <g class="fl-pad" id="flPad"></g>
+    <g id="stackG"><g id="stackShake"></g></g>
+  </svg>
+
+  <!-- big hand-drawn launch countdown + persistent "keep scrolling" tip -->
+  <div class="fl-count" id="flCount" aria-hidden="true"></div>
+  <div class="fl-tip" id="flTip" aria-hidden="true">keep scrolling<svg width="22" height="30" viewBox="0 0 22 30" fill="none"><path class="cw-sketch cw-sketch--blue cw-sketch--thin" d="M11 2 L11 24 M4 17 L11 25 L18 17"/></svg></div>
+
+  <!-- PHASE 2+ · second stage / capsule — injected from rockets.js -->
+  <div class="fl-obj" id="flStage2"></div>
+  <!-- PHASE 2 · spent booster — injected -->
+  <div class="fl-obj" id="flDebris"></div>
+  <!-- PHASE 2 · mated full stack for the fly-in (identical to the launch rocket) — injected -->
+  <div class="fl-obj" id="flMated"></div>
+
+  <!-- satellite the astronaut services during the spacewalk -->
+  <div class="fl-obj" id="flSat">
+    <svg viewBox="0 0 150 80" fill="none">
+      <!-- bus -->
+      <rect class="cw-sketch" x="58" y="26" width="34" height="28" rx="2" fill="#fff"/>
+      <path class="cw-sketch cw-sketch--thin" d="M66 26 L66 54 M75 26 L75 54 M84 26 L84 54"/>
+      <!-- dish -->
+      <ellipse class="cw-sketch cw-sketch--blue" cx="75" cy="14" rx="11" ry="5"/>
+      <path class="cw-sketch cw-sketch--thin" d="M75 19 L75 26"/>
+      <!-- solar arrays -->
+      <g class="cw-sketch cw-sketch--thin">
+        <rect x="6" y="30" width="44" height="20" fill="#fff"/>
+        <path d="M50 40 L58 40 M17 30 L17 50 M28 30 L28 50 M39 30 L39 50"/>
+        <rect x="100" y="30" width="44" height="20" fill="#fff"/>
+        <path d="M92 40 L100 40 M111 30 L111 50 M122 30 L122 50 M133 30 L133 50"/>
+      </g>
+    </svg>
+  </div>
+
+  <!-- astronaut + spacewalk -->
+  <div class="fl-obj" id="flAstro">
+    <svg viewBox="0 0 130 152" fill="none">
+      <g class="fl-astro-spin">
+        <rect class="cw-sketch" x="40" y="58" width="46" height="46" rx="9" fill="#fff"/>
+        <path class="cw-sketch" d="M50 96 C 38 106 28 118 20 132"/>
+        <path class="cw-sketch" d="M80 96 C 92 102 104 108 118 104"/>
+        <path class="cw-sketch" d="M55 102 C 51 118 49 132 53 146"/>
+        <path class="cw-sketch" d="M75 102 C 81 116 87 130 85 146"/>
+        <circle class="cw-sketch" cx="18" cy="134" r="5" fill="#fff"/>
+        <circle class="cw-sketch" cx="120" cy="103" r="5" fill="#fff"/>
+        <rect class="cw-sketch" x="46" y="54" width="38" height="50" rx="15" fill="#fff"/>
+        <circle class="cw-sketch" cx="65" cy="34" r="22" fill="#fff"/>
+        <ellipse cx="65" cy="34" rx="14" ry="12" fill="#1C1E22"/>
+        <ellipse cx="60" cy="30" rx="4" ry="3" fill="#8FCDE6" opacity=".85"/>
+        <circle class="cw-sketch cw-sketch--blue" cx="65" cy="74" r="4" fill="#fff"/>
+      </g>
+    </svg>
+  </div>
+
+  <!-- tether line (drawn between capsule + astronaut during the spacewalk) -->
+  <svg class="fl-link" id="flLink"><path id="flTether" d=""></path></svg>
+
+  <!-- PHASE 4 · dashed orbit/descent line (page-anchored, drawn in viewport px) + entry glow -->
+  <svg class="fl-orbit" id="flOrbit" aria-hidden="true" fill="none">
+    <path id="flOrbitFly" class="fl-orbit-fly" d=""></path>
+    <path id="flOrbitDesc" class="fl-orbit-desc" d=""></path>
+    <circle id="flGlow" class="fl-glow" cx="0" cy="0" r="0"></circle>
+  </svg>
+</div>
+
+<!-- ============ HERO ============ -->
+<div class="hero-launch" id="top">
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-copy">
+      <span class="cw-eyebrow">Construction Professional</span>
+      <h1>Camron<br>Walker</h1>
+      <p class="hero-lead">Project manager &amp; scheduler. I plan the work, then build it — public schools, civic landmarks, and historic preservation across North America.</p>
+      <div class="hero-actions">
+        <a class="cw-btn" href="#work">View selected work</a>
+        <a class="cw-btn cw-btn--ghost js-dl" href="assets/Camron-Walker-Resume.docx" data-fname="Camron-Walker-Resume.docx">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 11 5 4 5-4"/><path d="M5 21h14"/></svg>
+          Download resume
+        </a>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- handwritten annotations -->
+  <div class="ann" style="left:46%;top:118px;transform:rotate(-5deg);">
+    13 years, on schedule
+    <svg width="80" height="56" style="left:-26px;top:30px;"><path class="cw-sketch cw-sketch--blue cw-sketch--thin" d="M62 8 C36 8 14 24 8 48"/><path class="cw-sketch cw-sketch--blue cw-sketch--thin" d="M8 48 L6 34 M8 48 L22 46"/></svg>
+  </div>
+</section>
+</div>
+
+<!-- ============ WORK ============ -->
+<section class="sec" id="work">
+  <div class="cw-wrap">
+    <div class="sec-head reveal">
+      <div>
+        <span class="cw-eyebrow">Selected Work</span>
+        <h2 class="sec-title">Projects I've helped build</h2>
+      </div>
+      <p class="sec-kicker">A cross-section of public-agency, religious, and historic-preservation work — from a $76M high school to occupied temple renovations. Photos coming soon; drop your own into any tile.</p>
+    </div>
+
+    <div class="proj-grid">
+      <!-- 1 -->
+      <a class="proj-card reveal" href="https://www.wgem.com/2025/07/21/nauvoo-temple-visitors-center-slated-mid-2026-completion/" target="_blank" rel="noopener">
+        <div class="proj-media">
+          <div class="proj-tagrow"><span class="proj-chip">Superintendent · APM</span></div>
+          <image-slot id="p-nauvoo-vc" placeholder="Drop a project photo"></image-slot>
+        </div>
+        <div class="proj-body">
+          <span class="proj-eyebrow">Religious · New Construction</span>
+          <span class="proj-name">Nauvoo Temple Visitors' Center</span>
+          <p class="proj-desc">Ground-up visitors' center across from the Nauvoo Temple — led field execution under Westland founder Stan Houghton toward a public opening in mid-2026.</p>
+          <div class="proj-meta"><span><b>20,200 sf</b></span><span>2024–26</span><span>Nauvoo, IL</span><span class="proj-link">Read coverage
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></span></div>
+        </div>
+      </a>
+
+      <!-- 2 -->
+      <div class="proj-card reveal d1">
+        <div class="proj-media">
+          <div class="proj-tagrow"><span class="proj-chip">Project Manager</span></div>
+          <image-slot id="p-toronto" placeholder="Drop a project photo"></image-slot>
+        </div>
+        <div class="proj-body">
+          <span class="proj-eyebrow">Religious · Renovation</span>
+          <span class="proj-name">Toronto Ontario Temple</span>
+          <p class="proj-desc">Full mechanical replacement and interior renovation of an occupied temple — 30+ tiered subcontractor packages coordinated across the US–Canada border.</p>
+          <div class="proj-meta"><span><b>61,000 sf</b></span><span>2023–24</span><span>Toronto, ON</span></div>
+        </div>
+      </div>
+
+      <!-- 3 -->
+      <div class="proj-card reveal d2">
+        <div class="proj-media">
+          <div class="proj-tagrow"><span class="proj-chip">PE · APM</span></div>
+          <image-slot id="p-mountainridge" placeholder="Drop a project photo"></image-slot>
+        </div>
+        <div class="proj-body">
+          <span class="proj-eyebrow">K–12 · New Construction</span>
+          <span class="proj-name">Mountain Ridge High School</span>
+          <p class="proj-desc">Three-year, public-bid high school build with full financial control of pay applications, change orders, and owner cost reporting alongside 40+ trade crews.</p>
+          <div class="proj-meta"><span><b>$76M</b></span><span>350,000 sf</span><span>Herriman, UT</span></div>
+        </div>
+      </div>
+
+      <!-- 4 -->
+      <div class="proj-card reveal">
+        <div class="proj-media">
+          <div class="proj-tagrow"><span class="proj-chip">PE · APM</span></div>
+          <image-slot id="p-stgeorge" placeholder="Drop a project photo"></image-slot>
+        </div>
+        <div class="proj-body">
+          <span class="proj-eyebrow">Religious · Historic Renovation</span>
+          <span class="proj-name">St. George Historic Temple</span>
+          <p class="proj-desc">Comprehensive renovation in a historic-preservation setting — submittal/RFI, document control, and change-management workflows across a complex delivery.</p>
+          <div class="proj-meta"><span><b>142,000 sf</b></span><span>2019–23</span><span>St. George, UT</span></div>
+        </div>
+      </div>
+
+      <!-- 5 -->
+      <div class="proj-card reveal d1">
+        <div class="proj-media">
+          <div class="proj-tagrow"><span class="proj-chip">Project Manager</span></div>
+          <image-slot id="p-younghome" placeholder="Drop a project photo"></image-slot>
+        </div>
+        <div class="proj-body">
+          <span class="proj-eyebrow">Historic Preservation</span>
+          <span class="proj-name">Brigham &amp; Mary Ann Young Home</span>
+          <p class="proj-desc">Period-correct preservation of Brigham Young's Nauvoo home — phased to keep museum operations running, with specialist material sourcing and owner coordination.</p>
+          <div class="proj-meta"><span><b>Lead PM</b></span><span>2025–26</span><span>Nauvoo, IL</span></div>
+        </div>
+      </div>
+
+      <!-- 6 -->
+      <div class="proj-card reveal d2">
+        <div class="proj-media">
+          <div class="proj-tagrow"><span class="proj-chip">Field / PE support</span></div>
+          <image-slot id="p-brooklynbowl" placeholder="Drop a project photo"></image-slot>
+        </div>
+        <div class="proj-body">
+          <span class="proj-eyebrow">Retail / Entertainment · TI</span>
+          <span class="proj-name">Brooklyn Bowl @ The LINQ</span>
+          <p class="proj-desc">High-profile tenant build-out on the Las Vegas Strip with McCarthy Building Companies — RFI/submittal management and progress tracking on a fast-paced job.</p>
+          <div class="proj-meta"><span><b>78,000 sf</b></span><span>2014</span><span>Las Vegas, NV</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- more projects -->
+    <div class="proj-more reveal">
+      <h4>More public-agency work</h4>
+      <div class="proj-list">
+        <div class="proj-row"><div><div class="pr-name">Richfield High School</div><div class="pr-sub">Rebuild · Sevier School District</div></div><div class="pr-meta">$34M · 290,000 sf</div></div>
+        <div class="proj-row"><div><div class="pr-name">Springside Elementary</div><div class="pr-sub">New construction · 7-month accelerated delivery</div></div><div class="pr-meta">$18M · 79,000 sf</div></div>
+        <div class="proj-row"><div><div class="pr-name">Rock Canyon Elementary</div><div class="pr-sub">Rebuild · Provo</div></div><div class="pr-meta">$13.5M · 80,000 sf</div></div>
+        <div class="proj-row"><div><div class="pr-name">Sunset View Elementary</div><div class="pr-sub">Rebuild · Provo</div></div><div class="pr-meta">$13.5M · 80,000 sf</div></div>
+        <div class="proj-row"><div><div class="pr-name">Deseret Industries — Springville</div><div class="pr-sub">New construction · institutional</div></div><div class="pr-meta">110,000 sf</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ COAST TO STAGING — rocket arcs in from the left here ============ -->
+<div class="mission-gap" id="gapStage" aria-hidden="true"></div>
+
+<!-- frozen graph-paper layer — switched on by site.js only during the About pin -->
+<div class="pin-grid" id="pinGrid" aria-hidden="true"></div>
+
+<!-- ============ ABOUT ============ -->
+<section class="sec about" id="about">
+  <div class="about-pin">
+    <div class="about-fix">
+  <div class="cw-wrap">
+    <div class="sec-head reveal"><div><span class="cw-eyebrow">About</span><h2 class="sec-title">Builder, owner-side discipline</h2></div></div>
+    <div class="about-grid">
+      <div class="reveal">
+        <figure class="about-portrait">
+          <img src="assets/camron-portrait.png" alt="Pencil-sketch portrait of Camron Walker" width="864" height="1152">
+          <span class="about-portrait-note">that's me &rarr;</span>
+        </figure>
+        <p class="about-lead">I build public places — schools, civic buildings, and historic landmarks — and I sweat the <span class="hl">schedule and the budget</span> so owners don't have to.</p>
+        <div class="about-body" style="margin-top:28px;">
+          <p>Thirteen years in, I've grown through nearly every seat on a Westland project: project engineer, assistant PM, project manager, superintendent, and now scheduler. That range means I read a set of drawings, a pay application, and a CPM schedule with the same fluency.</p>
+          <p>Lately my work is as much data as dirt. I built a portfolio scoring and tracking dashboard in <b>Power BI</b> that pulls <b>Procore</b>, our ERP, and <b>SmartPM</b> into one executive view — and I run cross-portfolio <b>Primavera P6</b> scheduling for Westland's active pipeline.</p>
+          <p>I grew up in Boulder City, studied Construction &amp; Facilities Management at BYU, and spent two years in Lima, Peru, where I earned full professional Spanish. I care about clean coordination, owner-side discipline, and finishing what I start.</p>
+        </div>
+      </div>
+      <div class="reveal d1">
+        <div class="about-path">
+          <div class="path-step"><div><div class="ps-where">Boulder City, NV</div><div class="ps-yr">2009</div></div><div class="ps-what">Boulder City High School. Hometown roots — and the reason this one matters.</div></div>
+          <div class="path-step"><div><div class="ps-where">Lima, Peru</div><div class="ps-yr">2010–2012</div></div><div class="ps-what">Two years of full-time volunteer service. Small-team leadership and full professional Spanish.</div></div>
+          <div class="path-step"><div><div class="ps-where">Brigham Young University</div><div class="ps-yr">2016</div></div><div class="ps-what">B.S., Construction &amp; Facilities Management.</div></div>
+          <div class="path-step"><div><div class="ps-where">Westland Construction</div><div class="ps-yr">2015–present</div></div><div class="ps-what">PE → Assistant PM → PM → Superintendent → Scheduler.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+  </div>
+</section>
+
+<!-- ============ SKILLS ============ -->
+<section class="sec" id="skills">
+  <div class="skills-pin">
+    <div class="skills-fix">
+  <div class="cw-wrap">
+    <div class="sec-head reveal"><div><span class="cw-eyebrow">Skills &amp; Tools</span><h2 class="sec-title">What I bring to a job</h2></div>
+      <p class="sec-kicker">Equal parts field experience and software fluency — the reason I can plan a schedule and then go build it.</p></div>
+    <div class="skills-grid">
+      <div class="skill-cat reveal">
+        <div class="sc-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m7 14 3-4 3 2 4-6"/></svg></div>
+        <h4>Scheduling &amp; Controls</h4>
+        <ul><li>Primavera P6 (CPM)</li><li>Microsoft Project</li><li>Baselines &amp; schedule reviews</li><li>Pay apps &amp; change orders</li><li>Owner cost reporting</li></ul>
+      </div>
+      <div class="skill-cat reveal d1">
+        <div class="sc-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14a8 8 0 0 1 16 0"/><path d="M2 14h20"/><path d="M10 6V4h4v2"/><path d="M12 6a8 8 0 0 0-2 .3"/></svg></div>
+        <h4>Field &amp; Coordination</h4>
+        <ul><li>Superintendent experience</li><li>40+ trade crews</li><li>RFI / submittal control</li><li>QA/QC &amp; inspections</li><li>OSHA 30-Hour</li></ul>
+      </div>
+      <div class="skill-cat reveal d2">
+        <div class="sc-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg></div>
+        <h4>Tech &amp; Data</h4>
+        <ul><li>Power BI dashboards</li><li>Procore</li><li>Bluebeam Revu</li><li>Navisworks</li><li>Viewpoint Team</li></ul>
+      </div>
+      <div class="skill-cat reveal d3">
+        <div class="sc-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0"/><path d="M16 5a3 3 0 0 1 0 6"/><path d="M21 20a6 6 0 0 0-4.5-5.8"/></svg></div>
+        <h4>Delivery &amp; People</h4>
+        <ul><li>Public-bid procurement</li><li>Prevailing-wage compliance</li><li>Owner-rep coordination</li><li>Spanish (professional)</li><li>Historic preservation</li></ul>
+      </div>
+    </div>
+  </div>
+  </div>
+  </div>
+</section>
+
+<!-- ============ EXPERIENCE ============ -->
+<section class="sec about" id="experience">
+  <div class="cw-wrap">
+    <div class="sec-head reveal"><div><span class="cw-eyebrow">Experience</span><h2 class="sec-title">Career, in order</h2></div></div>
+    <div class="tl">
+      <div class="tl-item now reveal"><div class="tl-dot"></div><div class="tl-yr">2026 — Present</div><div class="tl-role">Project Scheduler</div><div class="tl-org">Westland Construction, Inc.</div><p class="tl-note">Built a portfolio scoring &amp; tracking dashboard in Power BI (Procore + ERP + SmartPM); cross-portfolio Primavera P6 scheduling for the active pipeline; estimating a large international religious project.</p></div>
+      <div class="tl-item reveal"><div class="tl-dot"></div><div class="tl-yr">2024 — Present</div><div class="tl-role">Superintendent / APM</div><div class="tl-org">Nauvoo Temple Visitors' Center · Nauvoo, IL</div><p class="tl-note">Led field execution under Westland founder Stan Houghton toward a mid-2026 public opening; managed daily schedule, QC, and owner-inspection coordination.</p></div>
+      <div class="tl-item reveal"><div class="tl-dot"></div><div class="tl-yr">2025 — Present</div><div class="tl-role">Project Manager</div><div class="tl-org">Brigham &amp; Mary Ann Young Home · Nauvoo, IL</div><p class="tl-note">Lead PM on a specialty historic-preservation project; full P&amp;L control, period-correct material sourcing, phased work to preserve museum operations.</p></div>
+      <div class="tl-item reveal"><div class="tl-dot"></div><div class="tl-yr">2023 — 2024</div><div class="tl-role">Project Manager</div><div class="tl-org">Toronto Ontario Temple Renovation · Toronto, ON</div><p class="tl-note">Full mechanical replacement + interior renovation on an occupied building; held P&amp;L and cost control; coordinated 30+ subcontractor packages cross-border.</p></div>
+      <div class="tl-item reveal"><div class="tl-dot"></div><div class="tl-yr">2019 — 2023</div><div class="tl-role">Project Engineer / APM</div><div class="tl-org">St. George Historic Temple · St. George, UT</div><p class="tl-note">142,000 sf historic renovation; subcontractor &amp; schedule coordination, submittal/RFI, document control, and change management.</p></div>
+      <div class="tl-item reveal"><div class="tl-dot"></div><div class="tl-yr">2017 — 2020</div><div class="tl-role">Project Engineer / APM</div><div class="tl-org">Mountain Ridge High School · Herriman, UT</div><p class="tl-note">$76M, 350,000 sf new construction; effective project lead with full financial control across a three-year build and 40+ subcontractor crews.</p></div>
+      <div class="tl-item reveal"><div class="tl-dot"></div><div class="tl-yr">2015 — 2017</div><div class="tl-role">Project Engineer</div><div class="tl-org">Earlier Westland projects · Utah</div><p class="tl-note">Richfield HS, Springside, Rock Canyon &amp; Sunset View Elementary, Deseret Industries Springville — public-bid procurement and AHJ workflows.</p></div>
+      <div class="tl-item reveal"><div class="tl-dot"></div><div class="tl-yr">2014</div><div class="tl-role">Project / Field Support</div><div class="tl-org">McCarthy Building Companies · Las Vegas, NV</div><p class="tl-note">ENR Top-10 GC. Brooklyn Bowl @ The LINQ tenant improvement on the Las Vegas Strip — subcontractor coordination and RFI/submittal management.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CONTACT ============ -->
+<section class="sec contact" id="contact">
+  <div class="contact-pin">
+  <div class="contact-fix">
+  <div class="land-globe" id="landGlobe" aria-hidden="true"></div>
+  <div class="cw-wrap">
+    <div class="contact-grid">
+      <div class="reveal">
+        <span class="cw-eyebrow">Get in touch</span>
+        <h2>Let's build<br>something.</h2>
+        <p class="lead">Open to project management, scheduling, and preconstruction roles — especially public-agency and historic work. Boulder City roots, currently in Salt Lake City.</p>
+        <div class="hero-actions" style="margin-top:32px;">
+          <a class="cw-btn js-dl" href="assets/Camron-Walker-Resume.docx" data-fname="Camron-Walker-Resume.docx" style="background:var(--cw-blue);border-color:var(--cw-blue);">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 11 5 4 5-4"/><path d="M5 21h14"/></svg>
+            Download resume
+          </a>
+        </div>
+      </div>
+      <div class="contact-card reveal d1">
+        <div class="contact-row">
+          <span class="ci"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></span>
+          <div><div class="clbl">Email</div><a class="cval" id="c-email" href="#">click to reveal</a></div>
+        </div>
+        <div class="contact-row">
+          <span class="ci"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h4l2 5-3 2a12 12 0 0 0 5 5l2-3 5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg></span>
+          <div><div class="clbl">Phone</div><a class="cval" id="c-phone" href="#">click to reveal</a></div>
+        </div>
+        <div class="contact-row">
+          <span class="ci"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 10v7M7 7v.01M11 17v-4a2 2 0 0 1 4 0v4M11 17v-4"/></svg></span>
+          <div><div class="clbl">LinkedIn</div><a class="cval" href="https://www.linkedin.com/in/camronwalker/" target="_blank" rel="noopener">/in/camronwalker</a></div>
+        </div>
+        <div class="contact-row">
+          <span class="ci"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.3-7-11a7 7 0 0 1 14 0c0 4.7-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></span>
+          <div><div class="clbl">Based in</div><span class="cval">Salt Lake City, UT</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="foot-inner">
+    <span>© <span id="yr"></span> Camron Walker</span>
+  </div>
+</footer>
+
+<!-- download badge (top-right) -->
+<div class="dl-badge" id="dlBadge">
+  <span class="dot"></span>
+  <span><span class="fname" id="dlName">resume.docx</span> · downloaded</span>
+</div>
+
+<!-- rocket graphics — single source of truth, shared with the Rocket Studio -->
+<script src="astro_path.js"></script>
+<script src="land_path.js"></script>
+<script src="rockets.js"></script>
+
+<script src="image-slot.js"></script>
+<script src="site.js"></script>
+
+<!-- Tweaks panel — control surface only; site.js owns the animation -->
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<div id="tweaksRoot"></div>
+<script type="text/babel">
+  const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+    "launchLength": 1.3
+  }/*EDITMODE-END*/;
+  function App() {
+    const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+    React.useEffect(() => {
+      window.CW_TWEAKS = t;
+      if (window.cwApplyTweaks) window.cwApplyTweaks(t);
+    }, [t]);
+    return (
+      <TweaksPanel title="Tweaks">
+        <TweakSection label="Launch" />
+        <TweakSlider label="Launch length" value={t.launchLength}
+                     min={1} max={2.5} step={0.1} unit=" screens"
+                     onChange={(v) => setTweak('launchLength', v)} />
+      </TweaksPanel>
+    );
+  }
+  ReactDOM.createRoot(document.getElementById('tweaksRoot')).render(<App />);
+</script>
+</body>
+</html>

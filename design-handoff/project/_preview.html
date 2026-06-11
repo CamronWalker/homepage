@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Mulish:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="camron.css">
+<style>body{margin:0;background:#e9e7e2;}
+.wrap{display:flex;flex-direction:column;gap:24px;padding:24px;align-items:center;}
+.scaler{width:896px;height:560px;overflow:hidden;box-shadow:0 6px 24px rgba(0,0,0,.12);background:#fff;}
+.scaler>div{transform:scale(.7);transform-origin:top left;}
+.lbl{font-family:'JetBrains Mono',monospace;font-size:13px;color:#555;align-self:flex-start;margin-left:max(24px,calc(50% - 448px));}
+</style></head><body>
+<div class="wrap" id="w"></div>
+<script src="heroes.js"></script>
+<script>
+const w=document.getElementById('w');
+[['A · Flight Path','HERO_A'],['B · Blueprint Margin','HERO_B'],['C · Editorial Split','HERO_C']].forEach(([lbl,k])=>{
+  const l=document.createElement('div');l.className='lbl';l.textContent=lbl;w.appendChild(l);
+  const s=document.createElement('div');s.className='scaler';const inner=document.createElement('div');inner.innerHTML=window.HEROES[k];s.appendChild(inner);w.appendChild(s);
+});
+</script>
+</body></html>
