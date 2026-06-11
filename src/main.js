@@ -2,14 +2,19 @@ import gsap from "gsap";
 import ScrollTrigger from "gsap/ScrollTrigger";
 import MotionPathPlugin from "gsap/MotionPathPlugin";
 import DrawSVGPlugin from "gsap/DrawSVGPlugin";
-import { injectFlightLayer, sizeRocketParts } from "./flight-layer.js";
+import { injectFlightLayer, sizeRocketParts, els } from "./flight-layer.js";
 import { createPin } from "./mission/pins.js";
 import { TUNABLES } from "./mission/tunables.js";
 import { refreshCtx } from "./mission/context.js";
+import { buildLaunch } from "./mission/launch.js";
 
 gsap.registerPlugin(ScrollTrigger, MotionPathPlugin, DrawSVGPlugin);
-ScrollTrigger.normalizeScroll(true);
+// normalize only on touch-only devices (iOS address-bar/momentum resync); on
+// desktop it proxies scrolling and breaks programmatic/embedded scroll tracking
+if (ScrollTrigger.isTouch === 1) ScrollTrigger.normalizeScroll(true);
 ScrollTrigger.addEventListener("refreshInit", refreshCtx);
+window.__ST = ScrollTrigger;   // debug + e2e settle hooks
+window.__gsap = gsap;
 
 document.documentElement.classList.add("js");
 injectFlightLayer();
@@ -27,6 +32,7 @@ mm.add(
     if (reduce || mobile) { return; }              // CSS hides .flight ≤920 / reduced motion
     const pinGridEl = document.getElementById("pinGrid");
     const onEnter = (self) => { if (self.isActive) refreshCtx(); };
+    buildLaunch(els, TUNABLES);
     createPin({ trigger: ".about-pin",   topFrac: TUNABLES.PIN_TOP_FRAC,        durVH: TUNABLES.PIN_DUR_VH,        pinGridEl, onToggle: onEnter });
     createPin({ trigger: ".skills-pin",  topFrac: TUNABLES.SKILLS_PIN_TOP_FRAC, durVH: TUNABLES.SKILLS_PIN_DUR_VH, pinGridEl, onToggle: onEnter });
     createPin({ trigger: ".contact-pin", topFrac: TUNABLES.FOOT_PIN_TOP_FRAC,   durVH: TUNABLES.FOOT_PIN_DUR_VH,   pinGridEl, onToggle: onEnter });

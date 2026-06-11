@@ -38,7 +38,7 @@ section { position: relative; }
 /* ============ HERO ============ */
 .hero-launch { position: relative; }
 .hero {
-  position: sticky; top: 0; height: 100vh; min-height: 600px; overflow: hidden;
+  position: relative; height: 100vh; min-height: 600px; overflow: hidden;   /* pinned by ScrollTrigger for the countdown */
   background-color: var(--cw-paper);
   background-image:
     linear-gradient(var(--cw-line-soft) 1px, transparent 1px),
