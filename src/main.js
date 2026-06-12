@@ -10,10 +10,12 @@ import { buildLaunch } from "./mission/launch.js";
 import { buildSeparation } from "./mission/separation.js";
 import { buildSpacewalk } from "./mission/spacewalk.js";
 import { buildLanding } from "./mission/landing.js";
+import { buildFinale } from "./mission/finale.js";
 import { createStageManager } from "./mission/stage.js";
 import { initProjectsUI } from "./ui/projects-modal.js";
 import { initPlane } from "./fx/plane.js";
 import { initContact } from "./ui/contact.js";
+import { initPencil } from "./fx/pencil.js";
 
 gsap.registerPlugin(ScrollTrigger, MotionPathPlugin, DrawSVGPlugin);
 // normalize only on touch-only devices (iOS address-bar/momentum resync); on
@@ -27,6 +29,7 @@ document.documentElement.classList.add("js");
 injectFlightLayer();
 injectGlobe();                 // coastline chunk loads async — globe is below the fold
 sizeRocketParts();
+initPencil();                  // wobble + grain + draw-ons (after the flight art is injected)
 window.addEventListener("resize", sizeRocketParts);
 document.getElementById("yr").textContent = new Date().getFullYear();
 
@@ -56,6 +59,7 @@ mm.add(
     createPin({ trigger: ".about-pin",   topFrac: t.PIN_TOP_FRAC,        durVH: t.PIN_DUR_VH,        pinGridEl, onToggle: onEnter });
     createPin({ trigger: ".skills-pin",  topFrac: t.SKILLS_PIN_TOP_FRAC, durVH: t.SKILLS_PIN_DUR_VH, pinGridEl, onToggle: onEnter });
     createPin({ trigger: ".contact-pin", topFrac: t.FOOT_PIN_TOP_FRAC,   durVH: t.FOOT_PIN_DUR_VH,   pinGridEl, onToggle: onEnter });
+    buildFinale(t);
     // phases are built before their pins, so re-sort into document order — otherwise
     // triggers below a pin compute their ranges without that pin's spacer
     ScrollTrigger.sort();
