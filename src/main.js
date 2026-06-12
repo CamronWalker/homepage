@@ -2,7 +2,7 @@ import gsap from "gsap";
 import ScrollTrigger from "gsap/ScrollTrigger";
 import MotionPathPlugin from "gsap/MotionPathPlugin";
 import DrawSVGPlugin from "gsap/DrawSVGPlugin";
-import { injectFlightLayer, sizeRocketParts, els } from "./flight-layer.js";
+import { injectFlightLayer, injectGlobe, sizeRocketParts, els } from "./flight-layer.js";
 import { createPin } from "./mission/pins.js";
 import { TUNABLES, MOBILE } from "./mission/tunables.js";
 import { refreshCtx } from "./mission/context.js";
@@ -25,6 +25,7 @@ window.__gsap = gsap;
 
 document.documentElement.classList.add("js");
 injectFlightLayer();
+injectGlobe();                 // coastline chunk loads async — globe is below the fold
 sizeRocketParts();
 window.addEventListener("resize", sizeRocketParts);
 document.getElementById("yr").textContent = new Date().getFullYear();

@@ -1,5 +1,6 @@
 import { ASTRO_PATH } from "./astro_path.js";
-import { NA_PATH } from "./land_path.js";
+// NA_PATH (the 470KB North-America coastline) is NOT imported here — the globe
+// builder takes it as a parameter so flight-layer can lazy-load it after boot.
 
 /* Four mission PHASES for camronwalker.com, each a static graph-paper scene
    using the locked "Rocket A" design (one-piece pointed 2nd stage, square crew
@@ -186,7 +187,7 @@ import { NA_PATH } from "./land_path.js";
   // Earth with the real North America outline (from the attached map). Rotation-ready:
   // the meridians + continent live in <g id="globeSpin">, pinned to the globe centre
   // (810,330). Animate its rotation, e.g. el.setAttribute('transform','rotate('+deg+' 810 330)').
-  function earthNA() {
+  function earthNA(naPath) {
     return '<defs><clipPath id="rkGlobeNA"><circle cx="810" cy="330" r="440"/></clipPath></defs>' +
       '<circle cx="810" cy="330" r="440" fill="#AEB6BC"/>' +
       '<g clip-path="url(#rkGlobeNA)">' +
@@ -202,23 +203,12 @@ import { NA_PATH } from "./land_path.js";
           '</g>' +
           '<g transform="translate(810,330) scale(2.2,2.68) translate(-480,-360) matrix(0.13333333,0,0,-0.13333333,0,720)" ' +
             'fill="#EDEBE3" stroke="#5B6166" stroke-width="7" stroke-linejoin="round">' +
-            '<path d="' + (NA_PATH || '') + '"/>' +
+            '<path d="' + (naPath || '') + '"/>' +
           '</g>' +
         '</g>' +
       '</g>' +
       '<circle cx="810" cy="330" r="440" fill="none" stroke="#3F454A" stroke-width="3"/>' +
       '<circle cx="810" cy="330" r="448" fill="none" stroke="#8FCDE6" stroke-width="2" opacity=".5"/>';
-  }
-
-  function scene(inner) {
-    return '<svg width="100%" height="100%" viewBox="0 0 600 660" preserveAspectRatio="xMidYMid meet" fill="none" style="display:block;">' + inner + '</svg>';
-  }
-  function frame(svg, note) {
-    return '<div class="cw-graph" style="width:100%;height:100%;display:grid;grid-template-rows:1fr auto;' +
-      'place-items:center;padding:22px 18px 16px;position:relative;">' +
-      '<div style="width:100%;height:100%;display:grid;place-items:center;">' + svg + '</div>' +
-      '<div style="font-family:var(--cw-mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;' +
-      'color:var(--cw-graphite-2);">' + note + '</div></div>';
   }
 
   /* launch-pad ground + flame trench (reused by the live page) */
@@ -234,59 +224,6 @@ import { NA_PATH } from "./land_path.js";
       '<path d="M430 200 L300 200 M426 192 L426 208"/>' +
     '</g>';
 
-  /* ───────── PHASE 1 · LAUNCH ───────── */
-  var P1 = frame(scene(
-    PAD + GANTRY +
-    // twin exhaust + rocket (origin at 270,311 — sits on the pad, not sunk in)
-    '<g transform="translate(255,568)">' + flame(86, 10) + '</g>' +
-    '<g transform="translate(285,568)">' + flame(86, 10) + '</g>' +
-    '<g transform="translate(270,311)">' + STACK + '</g>'
-  ), 'Phase 1 · Launch');
-
-  /* ───────── PHASE 2 · STAGE SEPARATION ───────── */
-  var P2 = frame(scene(
-    // 2nd stage, horizontal (nose right), igniting — flame fires left
-    '<g transform="translate(410,300) rotate(90) scale(0.9)">' +
-      '<g transform="translate(0,129)">' + flame(120, 15) + '</g>' + STAGE2 +
-    '</g>' +
-    // spent booster, separated & tumbling to the lower-left
-    '<g transform="translate(150,388) rotate(116) scale(0.9)">' + BOOSTER + '</g>' +
-    // separation gap ticks
-    '<g class="cw-sketch cw-sketch--blue cw-sketch--thin" opacity=".7">' +
-      '<path d="M232 332 L252 326 M236 350 L256 346 M244 368 L262 366"/>' +
-    '</g>'
-  ), 'Phase 2 · Stage separation');
-
-  /* ───────── PHASE 3 · SPACEWALK / COAST ───────── */
-  var P3 = frame(scene(
-    // stars
-    '<g class="cw-sketch cw-sketch--blue cw-sketch--thin" opacity=".6">' +
-      '<path d="M90 120 L90 134 M83 127 L97 127 M500 480 L500 492 M494 486 L506 486 M120 520 L120 530 M115 525 L125 525"/>' +
-    '</g>' +
-    // capsule (2nd stage), far left
-    '<g transform="translate(120,300) rotate(-18) scale(0.82)">' + STAGE2 + '</g>' +
-    // astronaut (real vector) floating, right of center
-    '<g transform="translate(330,340) scale(0.34)">' + ASTRO + '</g>' +
-    // tether: capsule hatch → astronaut
-    '<path d="M150 296 Q 230 400 320 358" fill="none" stroke="#1093C9" stroke-width="1.6" ' +
-      'stroke-dasharray="4 6" stroke-linecap="round" opacity=".8"/>'
-  ), 'Phase 3 · Spacewalk / coast');
-
-  /* ───────── PHASE 4 · RE-ENTRY / RETRO-BURN ───────── */
-  var P4 = frame(scene(
-    // Earth showing the real North America — Pacific + US West Coast visible (landing zone)
-    earthNA() +
-    // one elliptical-orbit line coming down from the top, sweeping into the Pacific
-    '<path d="M268 70 C 262 205 288 355 360 452 C 408 517 452 548 484 562" fill="none" stroke="#1093C9" stroke-width="2" ' +
-      'stroke-dasharray="7 9" stroke-linecap="round" opacity=".55"/>' +
-    // capsule near the top of the descent, retro-burning to slow down — on the orbit line,
-    // nose trailing back up the orbit, engine firing down toward the Earth
-    '<g transform="translate(272,162) rotate(-22) scale(0.8)">' +
-      '<g transform="translate(0,129)">' + flame(80, 15) + '</g>' + STAGE2 +
-    '</g>'
-  ), 'Phase 4 · Re-entry / retro-burn');
-
-  export const ROCKETS = { P1: P1, P2: P2, P3: P3, P4: P4 };
 
   /* Raw building blocks so the live page can choreograph the same drawings the
      studio shows. Each part is drawn around its own origin (centerline x=0). */

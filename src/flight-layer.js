@@ -55,10 +55,6 @@ export function injectFlightLayer() {
     if (_sat) _sat.innerHTML =
       '<svg viewBox="-92 -56 184 112" fill="none" style="overflow:visible;width:100%;height:auto;display:block">' + P.SAT + '</svg>';
 
-    // PHASE 4 · landing globe in the pinned Contact scene (rotation-ready North-America globe)
-    var _foot = doc.getElementById("landGlobe");
-    if (_foot && P.earthNA) _foot.innerHTML =
-      '<svg viewBox="342 -138 936 936" fill="none" preserveAspectRatio="xMidYMid meet">' + P.earthNA() + '</svg>';
   }
 
   // Populate els with every element handle the animation tasks need
@@ -107,6 +103,19 @@ export function injectFlightLayer() {
   els.nav         = doc2.getElementById("nav");
   els.burger      = doc2.getElementById("burger");
   els.navlinks    = doc2.getElementById("navlinks");
+}
+
+/* PHASE 4 · landing globe (rotation-ready North-America). The coastline path is
+   ~470KB of coordinates, so it loads as its own chunk after boot — the globe is
+   far below the fold, and its CSS box (width + aspect-ratio) exists immediately,
+   so the landing geometry that reads the box rect never has to wait. */
+export function injectGlobe() {
+  var foot = els.footerEarth || document.getElementById("landGlobe");
+  if (!foot || !P.earthNA) return Promise.resolve();
+  return import("./land_path.js").then(function (m) {
+    foot.innerHTML =
+      '<svg viewBox="342 -138 936 936" fill="none" preserveAspectRatio="xMidYMid meet">' + P.earthNA(m.NA_PATH) + '</svg>';
+  });
 }
 
 export function sizeRocketParts() {
