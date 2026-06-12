@@ -40,12 +40,13 @@ function hashSeed(s) {
   return h;
 }
 
-/* Roughen every sketch stroke on the page (and inside injected SVG) once.
-   Seeded by path CONTENT, so identical part outlines (the mated stack and the
-   split stages share their drawings) wobble identically — the separation seam
-   stays aligned to the pixel. */
+/* Roughen ONLY the hand-annotation strokes (margin arrows). The rocket art is
+   LOCKED — its bells, plumes, and seam geometry were tuned stroke by stroke in
+   the design sessions, and jitter visibly mangles small curves (engine bells
+   are ~15 units wide, so ±1.5 units is a 10% distortion). Pencil feel for the
+   art itself comes from the grain layer + the drawings' own sketch style. */
 export function applyWobble(root = document) {
-  root.querySelectorAll("path.cw-sketch, g.cw-sketch path").forEach((p) => {
+  root.querySelectorAll(".ann svg path").forEach((p) => {
     const d = p.getAttribute("d");
     if (!d) return;
     const cmds = (d.match(/[A-Za-z]/g) || []).length;

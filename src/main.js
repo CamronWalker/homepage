@@ -10,7 +10,6 @@ import { buildLaunch } from "./mission/launch.js";
 import { buildSeparation } from "./mission/separation.js";
 import { buildSpacewalk } from "./mission/spacewalk.js";
 import { buildLanding } from "./mission/landing.js";
-import { buildFinale } from "./mission/finale.js";
 import { createStageManager } from "./mission/stage.js";
 import { initProjectsUI } from "./ui/projects-modal.js";
 import { initPlane } from "./fx/plane.js";
@@ -59,7 +58,8 @@ mm.add(
     createPin({ trigger: ".about-pin",   topFrac: t.PIN_TOP_FRAC,        durVH: t.PIN_DUR_VH,        pinGridEl, onToggle: onEnter });
     createPin({ trigger: ".skills-pin",  topFrac: t.SKILLS_PIN_TOP_FRAC, durVH: t.SKILLS_PIN_DUR_VH, pinGridEl, onToggle: onEnter });
     createPin({ trigger: ".contact-pin", topFrac: t.FOOT_PIN_TOP_FRAC,   durVH: t.FOOT_PIN_DUR_VH,   pinGridEl, onToggle: onEnter });
-    buildFinale(t);
+    // NOTE: no "back to the top" element by design — the mission ends on the
+    // contact section so visitors reach out instead of bouncing back up.
     // phases are built before their pins, so re-sort into document order — otherwise
     // triggers below a pin compute their ranges without that pin's spacer
     ScrollTrigger.sort();

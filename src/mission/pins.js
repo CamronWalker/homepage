@@ -24,6 +24,11 @@ export function createPin({ trigger, topFrac, durVH, pinGridEl, onToggle, antici
         pinGridEl.style.opacity = self.isActive ? "1" : "0";
         if (self.isActive) pinGridEl.style.backgroundPositionY = `${-(self.start % GRID_PX)}px`;
       }
+      // a pinned section must NEVER sit blank waiting on the IntersectionObserver —
+      // transformed/fixed pin states can miss IO callbacks on some machines
+      if (self.isActive && self.trigger) {
+        self.trigger.querySelectorAll(".reveal").forEach((el) => el.classList.add("in"));
+      }
       if (onToggle) onToggle(self);
     },
   });

@@ -468,15 +468,3 @@ html.js .reveal.d1 { transition-delay: .08s; } html.js .reveal.d2 { transition-d
     padding: 24px 22px 40px;
   }
 }
-
-/* ============ FINALE — hand-lettered "back to the top" ============ */
-.fl-finale { position: fixed; left: 50%; bottom: -110px; transform: translateX(-50%) rotate(-3deg);
-  z-index: 60; pointer-events: auto; background: none; border: none; cursor: pointer;
-  font-family: var(--cw-hand); font-weight: 700; color: var(--cw-blue);
-  font-size: clamp(28px, 3.4vw, 44px); line-height: 1;
-  display: flex; flex-direction: column; align-items: center; gap: 2px;
-  opacity: 0; transition: bottom .6s var(--cw-ease), opacity .6s var(--cw-ease); }
-.fl-finale.show { bottom: 3.5vh; opacity: 1; }
-.fl-finale svg { overflow: visible; }
-.fl-finale:focus-visible { outline: 2px dashed var(--cw-blue); outline-offset: 6px; border-radius: 4px; }
-@media (prefers-reduced-motion: reduce) { .fl-finale { transition: none; } }

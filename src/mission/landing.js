@@ -1,4 +1,5 @@
 import gsap from "gsap";
+import ScrollTrigger from "gsap/ScrollTrigger";
 import { clamp01, lerp, easeInOut, buildOrbitPaths } from "./geometry.js";
 import { pinEnd } from "./pins.js";
 
@@ -151,6 +152,16 @@ export function buildLanding(els, t, { missionST } = {}) {
       els.flGlow.style.opacity = beats.glowOpacity(p).toFixed(2);
     }
   } });
+
+  /* HEAL — a scrubbed timeline init-renders once during load/refresh, possibly
+     before pin layout settles; if the trigger progress then doesn't change, no
+     onUpdate fires and a line built from a mid-layout globe rect would survive.
+     After every refresh, rebuild the line from the LIVE rect at live progress. */
+  ScrollTrigger.addEventListener("refresh", () => {
+    const lp = lndTl.scrollTrigger ? lndTl.scrollTrigger.progress : 0;
+    const op = orbTl.scrollTrigger ? orbTl.scrollTrigger.progress : 0;
+    if (lp > 0 || op > 0) rebuild(beats.burnP(lp));
+  });
 
   /* DONE — past the pin the scene stays pegged to the globe (ghost trace + dot) */
   const doneST = (function () {

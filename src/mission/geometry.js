@@ -53,9 +53,14 @@ export function buildOrbitPaths(W, H, burnP, globeRect) {
   var A  = { x: L.x - LANE_OFF_FRAC * W, y: -0.06 * H };
   var B  = { x: A.x - 0.008 * W,         y: BURN_Y_FRAC * H };
 
-  // fly-by lower half: periapsis P just off the upper-left limb, exit E under the page
-  var P  = { x: GCx + 1.22 * GR * Math.cos(222 * Math.PI / 180), y: GCy + 1.22 * GR * Math.sin(222 * Math.PI / 180) };
-  var E  = { x: GCx - 1.06 * GR, y: 1.10 * H };
+  // fly-by lower half: periapsis P just off the upper-left limb, exit E under the page.
+  // The prototype's 1.22 / 1.06 knot factors left the rendered curve grazing the rim
+  // (~7px at laptop viewports) — it read as a crash, not a slingshot. The Bézier bows
+  // INSIDE its knots, so both the periapsis (1.46) and the exit leg (1.18 — this is
+  // the curve's true closest approach) are pushed out to keep ≈10% of GR clear of the
+  // rim at any viewport. Physics first: approach, bend around the limb, recede.
+  var P  = { x: GCx + 1.46 * GR * Math.cos(222 * Math.PI / 180), y: GCy + 1.46 * GR * Math.sin(222 * Math.PI / 180) };
+  var E  = { x: GCx - 1.18 * GR, y: 1.10 * H };
 
   var c1f = { x: B.x - 0.004 * W, y: B.y + 0.45 * (P.y - B.y) };
   var c2f = { x: P.x + 0.45 * (B.x - P.x), y: P.y - 0.40 * (P.y - B.y) };
