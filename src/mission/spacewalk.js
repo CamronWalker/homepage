@@ -206,12 +206,13 @@ export function buildSpacewalk(els, t, hooks = {}) {
     if (els.orbitFly) els.orbitFly.style.opacity = f.orbit.lineOpacity;
     if (els.orbitDesc) els.orbitDesc.style.opacity = 0;
     if (els.s2Flame) els.s2Flame.style.opacity = 0;
-    // ship: hold pose blended onto the orbit lane (lane pose resolved by phase 4's geometry)
-    if (f.ship.laneBlend > 0 && hooks.laneAt) {
-      const lane = hooks.laneAt(f.ship.y);
+    // ship: hold pose blended onto the nearest point of the orbit, tangent-aligned
+    // (the lane pose is resolved by phase 4's geometry)
+    if (f.ship.laneBlend > 0 && hooks.laneNear) {
+      const lane = hooks.laneNear({ x: f.ship.x, y: f.ship.y });
       place(els.s2, {
         x: lerp(f.ship.x, lane.x, f.ship.laneBlend),
-        y: f.ship.y,
+        y: lerp(f.ship.y, lane.y, f.ship.laneBlend),
         rot: lerp(f.ship.rot, lane.ang + 90, f.ship.laneBlend),
         opacity: 1,
       });

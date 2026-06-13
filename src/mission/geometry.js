@@ -50,20 +50,47 @@ export function buildOrbitPaths(W, H, burnP, globeRect) {
   var aL = EARTH_LAND_DEG * Math.PI / 180;
   var L  = { x: GCx + GR * EARTH_LAND_R * Math.cos(aL), y: GCy + GR * EARTH_LAND_R * Math.sin(aL) };
 
-  var A  = { x: L.x - LANE_OFF_FRAC * W, y: -0.06 * H };
-  var B  = { x: A.x - 0.008 * W,         y: BURN_Y_FRAC * H };
+  // ── THE FLY-BY IS A REAL ORBIT SEGMENT ──────────────────────────────────
+  // The ship doesn't fall down the page — it's IN orbit: it enters from
+  // off-screen RIGHT already travelling tangentially, sweeps over the top of
+  // the planet, and wraps the left limb, concave toward the planet at every
+  // point. Knots sit on near-circular radii around the globe centre; Bézier
+  // handles run along the local tangents with circle-approximation lengths,
+  // so the curve hugs the orbit. The burn knot B is on the descending side —
+  // the retro-burn morphs only the path AHEAD of the ship (your history
+  // doesn't change; your future does).
+  var DEG = Math.PI / 180;
+  function polar(deg, r) { return { x: GCx + r * GR * Math.cos(deg * DEG), y: GCy + r * GR * Math.sin(deg * DEG) }; }
+  // direction of travel (decreasing angle: right → over the top → left limb)
+  function tangent(deg) { return { x: Math.sin(deg * DEG), y: -Math.cos(deg * DEG) }; }
+  function arcHandle(degSpan, r) { return (4 / 3) * Math.tan(Math.abs(degSpan) * DEG / 4) * r * GR; }
 
-  // fly-by lower half: periapsis P just off the upper-left limb, exit E under the page.
-  // The prototype's 1.22 / 1.06 knot factors left the rendered curve grazing the rim
-  // (~7px at laptop viewports) — it read as a crash, not a slingshot. The Bézier bows
-  // INSIDE its knots, so both the periapsis (1.46) and the exit leg (1.18 — this is
-  // the curve's true closest approach) are pushed out to keep ≈10% of GR clear of the
-  // rim at any viewport. Physics first: approach, bend around the limb, recede.
-  var P  = { x: GCx + 1.46 * GR * Math.cos(222 * Math.PI / 180), y: GCy + 1.46 * GR * Math.sin(222 * Math.PI / 180) };
-  var E  = { x: GCx - 1.18 * GR, y: 1.10 * H };
+  var ENTRY_DEG = -50, APEX_DEG = -96, BURN_DEG = -112, PERI_DEG = -138;
+  var ENTRY_R = 1.62, APEX_R = 1.50, BURN_R = 1.47, PERI_R = 1.46;
 
-  var c1f = { x: B.x - 0.004 * W, y: B.y + 0.45 * (P.y - B.y) };
-  var c2f = { x: P.x + 0.45 * (B.x - P.x), y: P.y - 0.40 * (P.y - B.y) };
+  var A = polar(ENTRY_DEG, ENTRY_R);
+  // the entry always starts off-screen right: extend radially along the same ray
+  if (A.x < W + 40 && A.x > GCx) {
+    var ke = (W + 40 - GCx) / (A.x - GCx);
+    A = { x: GCx + (A.x - GCx) * ke, y: GCy + (A.y - GCy) * ke };
+  }
+  var TOP = polar(APEX_DEG, APEX_R);
+  var B   = polar(BURN_DEG, BURN_R);
+  var P   = polar(PERI_DEG, PERI_R);
+  var E   = { x: GCx - 1.18 * GR, y: 1.10 * H };   // exit leg = the curve's closest approach
+
+  var tA = tangent(ENTRY_DEG), tT = tangent(APEX_DEG), tB = tangent(BURN_DEG), tP = tangent(PERI_DEG);
+  var h1 = arcHandle(ENTRY_DEG - APEX_DEG, (ENTRY_R + APEX_R) / 2);
+  var h2 = arcHandle(APEX_DEG - BURN_DEG, (APEX_R + BURN_R) / 2);
+  var hBP = arcHandle(BURN_DEG - PERI_DEG, (BURN_R + PERI_R) / 2);
+
+  var c0a = { x: A.x + tA.x * h1, y: A.y + tA.y * h1 };
+  var c0b = { x: TOP.x - tT.x * h1, y: TOP.y - tT.y * h1 };
+  var c1a = { x: TOP.x + tT.x * h2, y: TOP.y + tT.y * h2 };
+  var c1b = { x: B.x - tB.x * h2, y: B.y - tB.y * h2 };
+
+  var c1f = { x: B.x + tB.x * hBP, y: B.y + tB.y * hBP };
+  var c2f = { x: P.x - tP.x * hBP, y: P.y - tP.y * hBP };
   var c3f = { x: E.x + 0.015 * W, y: lerp(P.y, E.y, 0.55) };
 
   // descent lower half
@@ -82,9 +109,8 @@ export function buildOrbitPaths(W, H, burnP, globeRect) {
 
   var flyD =
     "M"  + A.x + " " + A.y +
-    " C " + (A.x - 0.003 * W) + " " + lerp(A.y, B.y, 0.5) +
-      " " + (B.x + 0.003 * W) + " " + lerp(A.y, B.y, 0.78) +
-      " " + B.x + " " + B.y +
+    " C " + c0a.x + " " + c0a.y + " " + c0b.x + " " + c0b.y + " " + TOP.x + " " + TOP.y +
+    " C " + c1a.x + " " + c1a.y + " " + c1b.x + " " + c1b.y + " " + B.x + " " + B.y +
     " C " + m1.x + " " + m1.y + " " + m2.x + " " + m2.y + " " + k.x + " " + k.y +
     " S " + m3.x + " " + m3.y + " " + en.x + " " + en.y;
 

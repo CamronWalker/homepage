@@ -12,4 +12,5 @@ export default defineConfig({
     },
   },
   server: { port: 5173, strictPort: true },
+  test: { exclude: ["**/node_modules/**", "tests/e2e/**"] },   // e2e belongs to Playwright
 });

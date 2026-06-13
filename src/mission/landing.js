@@ -38,15 +38,28 @@ function ptAt(pathEl, u) {
   const p2 = pathEl.getPointAtLength(Math.min(L, u * L + 1.5));
   return { x: p.x, y: p.y, ang: Math.atan2(p2.y - p.y, p2.x - p.x) * 180 / Math.PI };
 }
-/* point + angle where the path crosses a given viewport Y (bisection) */
-function ptAtY(pathEl, targetY) {
+/* length-fraction of the point on pathEl nearest to pt (coarse scan + refine).
+   The orbit arc isn't y-monotonic any more (it enters from the right and crests
+   over the planet), so the ship rides by PATH LENGTH, not by viewport height. */
+function uOfPoint(pathEl, pt) {
   const L = pathEl.getTotalLength();
-  let lo = 0, hi = L, mid = 0, p = null;
-  for (let i = 0; i < 18; i++) { mid = (lo + hi) / 2; p = pathEl.getPointAtLength(mid); if (p.y < targetY) lo = mid; else hi = mid; }
-  const p1 = pathEl.getPointAtLength(Math.max(0, mid - 1.5));
-  const p2 = pathEl.getPointAtLength(Math.min(L, mid + 1.5));
-  return { x: p.x, y: p.y, ang: Math.atan2(p2.y - p1.y, p2.x - p1.x) * 180 / Math.PI };
+  let bestU = 0, bestD = Infinity;
+  for (let i = 0; i <= 80; i++) {
+    const u = i / 80, p = pathEl.getPointAtLength(u * L);
+    const d = (p.x - pt.x) ** 2 + (p.y - pt.y) ** 2;
+    if (d < bestD) { bestD = d; bestU = u; }
+  }
+  for (let i = -9; i <= 9; i++) {
+    const u = clamp01(bestU + i / 800), p = pathEl.getPointAtLength(u * L);
+    const d = (p.x - pt.x) ** 2 + (p.y - pt.y) ** 2;
+    if (d < bestD) { bestD = d; bestU = u; }
+  }
+  return bestU;
 }
+
+/* fraction of the lane between the ride-in point and the burn knot that the
+   unpinned ORBIT phase covers; the pinned landing coast rides the rest */
+const LANE_SPLIT = 0.55;
 
 function place(el, x, y, rot, sc, op) {
   el.style.left = x + "px";
@@ -62,8 +75,20 @@ export function buildLanding(els, t, { missionST } = {}) {
 
   function globeRect() {
     const g = els.footerEarth;
-    const r = g.getBoundingClientRect();
-    return { left: r.left, top: r.top, width: r.width, offsetWidth: g.offsetWidth || r.width };
+    const live = g.getBoundingClientRect();
+    const pinST = lndTl && lndTl.scrollTrigger;
+    // After the landing completes the scene unpins and the ghost trace must track
+    // the globe as it scrolls; before/while pinned, anchor the orbit to where the
+    // globe SITS once the contact pin engages — during the unpinned approach the
+    // globe is still below the fold, and anchoring to its live rect would draw
+    // the whole orbit off-screen. The predicted rect equals the pinned rect, so
+    // the pin engages with zero jump.
+    if (pinST && pinST.progress >= 1) {
+      return { left: live.left, top: live.top, width: live.width, offsetWidth: g.offsetWidth || live.width };
+    }
+    const pinStart = pinST ? pinST.start : 0;
+    const pinnedTop = (live.top + window.scrollY) - pinStart;   // viewport top at scroll == pin start
+    return { left: live.left, top: pinnedTop, width: live.width, offsetWidth: g.offsetWidth || live.width };
   }
 
   let P4 = null;
@@ -73,11 +98,18 @@ export function buildLanding(els, t, { missionST } = {}) {
     els.orbitFly.setAttribute("d", P4.flyD);
     els.orbitDesc.setAttribute("d", P4.descD);
     els.orbitDesc.style.opacity = 0;          // math path — never drawn
+    // ride anchors along the lane: nearest point to the capsule hold, and the burn knot
+    P4.u0 = uOfPoint(els.orbitFly, { x: t.CAPSULE_X_FRAC * window.innerWidth, y: t.CAP_HOLD_FRAC * window.innerHeight });
+    P4.uB = uOfPoint(els.orbitFly, P4.B);
     return P4;
   }
 
-  // late-bound hook for the Phase-3 handoff: ship pose on the lane at a viewport height
-  const laneAt = (y) => { rebuild(0); return ptAtY(els.orbitFly, y); };
+  // late-bound hook for the Phase-3 handoff: lane pose nearest a given point,
+  // so the ship glides from the capsule hold ONTO the orbit, tangent-aligned
+  const laneNear = (pt) => {
+    rebuild(0);
+    return ptAt(els.orbitFly, uOfPoint(els.orbitFly, pt));
+  };
 
   /* ORBIT — unpinned drift down the lane while Experience scrolls */
   const orb = { p: 0 };
@@ -93,8 +125,8 @@ export function buildLanding(els, t, { missionST } = {}) {
     const sp = orbTl.scrollTrigger.progress;
     if (sp <= 0 || sp >= 1) return;
     rebuild(0);
-    const H = window.innerHeight;
-    const pos = ptAtY(els.orbitFly, lerp(t.CAP_HOLD_FRAC * H, t.ORBIT_EXIT_FRAC * H, easeInOut(orb.p)));
+    // ride the orbit by length: from the handoff point partway toward the burn knot
+    const pos = ptAt(els.orbitFly, lerp(P4.u0, lerp(P4.u0, P4.uB, LANE_SPLIT), easeInOut(orb.p)));
     const drift = Math.sin(orb.p * Math.PI * 2) * 5;
     els.flOrbit.style.opacity = Math.min(1, 0.8 + orb.p * 2);
     els.orbitFly.style.opacity = 0.55;
@@ -117,19 +149,19 @@ export function buildLanding(els, t, { missionST } = {}) {
     const sp = lndTl.scrollTrigger.progress;
     if (sp <= 0) return;
     const p = lnd.p;
-    const H = window.innerHeight;
     const bp = beats.burnP(p);
     rebuild(bp);                                       // the burn RESHAPES the one orbit line
     const shr = beats.shrink(p);
     els.flOrbit.style.opacity = 1;
     els.orbitFly.style.opacity = (0.55 * (1 - shr * 0.7)).toFixed(2);
-    const proAng = ptAtY(els.orbitFly, P4.B.y).ang + 90;
+    const proAng = ptAt(els.orbitFly, P4.uB).ang + 90;
     const retroAng = ptAt(els.orbitDesc, 0).ang + 90 + 180;
     let pos, rot, sc = 1;
     const flame = beats.flame(p);
     if (els.s2Flame) els.s2Flame.classList.toggle("burn", p >= beats.flipStart && p < beats.flipEnd);
-    if (p < beats.flipStart) {                          // coast down the lane, prograde, cold
-      pos = ptAtY(els.orbitFly, lerp(t.ORBIT_EXIT_FRAC * H, P4.B.y, easeInOut(p / beats.flipStart)));
+    if (p < beats.flipStart) {                          // coast along the orbit, prograde, cold
+      const uS = lerp(P4.u0, P4.uB, LANE_SPLIT);
+      pos = ptAt(els.orbitFly, lerp(uS, P4.uB, easeInOut(p / beats.flipStart)));
       rot = pos.ang + 90;
     } else if (p < beats.flipEnd) {                     // BURN: hold at the branch, flip retrograde
       pos = P4.B;
@@ -188,5 +220,5 @@ export function buildLanding(els, t, { missionST } = {}) {
     return st.scrollTrigger;
   })();
 
-  return { refs: { orbit: orbTl.scrollTrigger, landing: lndTl.scrollTrigger, done: doneST }, laneAt };
+  return { refs: { orbit: orbTl.scrollTrigger, landing: lndTl.scrollTrigger, done: doneST }, laneNear };
 }

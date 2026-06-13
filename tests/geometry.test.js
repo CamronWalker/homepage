@@ -28,4 +28,8 @@ describe("buildOrbitPaths", () => {
     const dist = Math.hypot(r.L.x - r.GCx, r.L.y - r.GCy);
     expect(dist).toBeCloseTo(r.GR * 0.42, 1);
   });
+  it("orbit enters from off-screen RIGHT (tangential approach, not a vertical drop)", () => {
+    const r = buildOrbitPaths(1440, 900, 0, globe);
+    expect(r.A.x).toBeGreaterThan(1440);
+  });
 });

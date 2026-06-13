@@ -52,7 +52,7 @@ mm.add(
     Object.assign(refs, buildSpacewalk(els, t, hooks));
     const landing = buildLanding(els, t, { missionST: refs.mission });
     Object.assign(refs, landing.refs);
-    hooks.laneAt = landing.laneAt;                             // phase-3 handoff rides phase-4 geometry
+    hooks.laneNear = landing.laneNear;                         // phase-3 handoff glides onto phase-4's orbit
     refs.s2Owners = [refs.separation, refs.coast, refs.mission, refs.orbit, refs.landing];
     const removeStage = createStageManager(els, refs);
     createPin({ trigger: ".about-pin",   topFrac: t.PIN_TOP_FRAC,        durVH: t.PIN_DUR_VH,        pinGridEl, onToggle: onEnter });
