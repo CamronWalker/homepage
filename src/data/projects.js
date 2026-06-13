@@ -11,10 +11,10 @@ export const PROJECTS = {
   "nauvoo-vc": {
     name: "Nauvoo Temple Visitors' Center",
     role: "Superintendent · PM",
-    eyebrow: "Religious · New Construction",
+    eyebrow: "Museum · New Construction",
     stats: [["Size", "20,200 sf"], ["Years", "2024–26"], ["Where", "Nauvoo, IL"]],
     paragraphs: [
-      "Ground-up visitors' center across from the Nauvoo Temple — I led field execution and turnover under Westland's founder toward a public opening in mid-2026, ahead of schedule.",
+      "Ground-up visitors' center across from the Nauvoo Temple — a 20,200 sf building that operates as a museum and exhibit space for temple visitors. I led field execution and turnover under Westland's founder toward a public opening in mid-2026, ahead of schedule.",
       "Day to day I ran the schedule, quality control, and owner-inspection coordination through the finish and turnover phases.",
     ],
     highlights: [
@@ -113,17 +113,17 @@ export const PROJECTS = {
 
   "brooklyn-bowl": {
     name: "Brooklyn Bowl @ The LINQ",
-    role: "Project Engineer (McCarthy)",
+    role: "Internship · McCarthy",
     eyebrow: "Retail / Entertainment · TI",
     stats: [["Size", "78,000 sf"], ["Year", "2014"], ["Where", "Las Vegas, NV"]],
     paragraphs: [
-      "78,000 sf tenant improvement built into a landlord core-and-shell on an operating Las Vegas Strip property, with ENR Top-10 general contractor McCarthy Building Companies.",
+      "78,000 sf tenant improvement built into a landlord core-and-shell on an operating Las Vegas Strip property — my early-career internship with ENR Top-10 general contractor McCarthy Building Companies.",
       "Handled subcontractor coordination, RFI/submittal management, and progress tracking on a fast-paced, high-profile job.",
     ],
     highlights: [
       "RFI/submittal management and progress tracking",
       "TI built into landlord core-and-shell on an operating Strip property",
-      "Early-career experience at an ENR Top-10 general contractor",
+      "Early-career internship at an ENR Top-10 general contractor",
     ],
     links: [],
     photos: [],
