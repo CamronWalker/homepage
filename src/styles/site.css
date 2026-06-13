@@ -125,6 +125,9 @@ section { position: relative; }
 .path-step .ps-where { font-family: var(--cw-display); font-weight: 600; color: var(--cw-ink); font-size: 16px; }
 .path-step .ps-yr { font-family: var(--cw-mono); font-size: 12px; color: var(--cw-blue-ink); margin-top: 3px; }
 .path-step .ps-what { color: var(--cw-graphite); font-size: 14.5px; line-height: 1.5; }
+.role-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 11px; }
+.role-tag { font-family: var(--cw-mono); font-size: 11px; letter-spacing: .03em; color: var(--cw-blue-ink);
+  background: var(--cw-blue-soft); border: 1px solid var(--cw-blue-line); border-radius: 3px; padding: 3px 8px; }
 
 /* ============ SKILLS ============ */
 .skills-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }

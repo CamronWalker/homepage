@@ -23,6 +23,7 @@ export const PROJECTS = {
       "Delivered ahead of schedule toward a mid-2026 public opening",
     ],
     links: [
+      ["Church Newsroom — scheduled for dedication", "https://newsroom.churchofjesuschrist.org/article/new-nauvoo-temple-visitors--center-scheduled-for-dedication"],
       ["WGEM — slated for mid-2026 completion", "https://www.wgem.com/2025/07/21/nauvoo-temple-visitors-center-slated-mid-2026-completion/"],
     ],
     photos: [],
@@ -107,7 +108,9 @@ export const PROJECTS = {
       "Sourced period-correct materials for an authentic restoration",
       "Held schedule through harsh winter conditions with creative weather protection",
     ],
-    links: [],
+    links: [
+      ["Church — Brigham & Mary Ann Young Home", "https://www.churchofjesuschrist.org/learn/locations/young-home?lang=eng"],
+    ],
     photos: [],
   },
 
@@ -125,7 +128,11 @@ export const PROJECTS = {
       "TI built into landlord core-and-shell on an operating Strip property",
       "Early-career internship at an ENR Top-10 general contractor",
     ],
-    links: [],
+    links: [
+      ["McCarthy — project page", "https://www.mccarthy.com/projects/brooklyn-bowl"],
+      ["Video — Building Brooklyn Bowl Las Vegas", "https://www.youtube.com/watch?v=s1snzow2cQw"],
+      ["Cerris Systems — project", "https://cerrissystems.com/portfolios/brooklyn-bowl/"],
+    ],
     photos: [],
   },
 };
