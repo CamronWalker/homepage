@@ -24,7 +24,8 @@ it("unknown slug is a no-op", () => {
   openProject("nope");
   expect(document.querySelector(".pmodal")).toBeFalsy();
 });
-it("shows the photos-coming-soon note when no photos", () => {
+it("renders highlights and coverage links", () => {
   openProject("st-george");
-  expect(document.querySelector(".pmodal .pm-photos-note")).toBeTruthy();
+  expect(document.querySelector(".pmodal .pm-highlights li")).toBeTruthy();
+  expect(document.querySelector(".pmodal .pm-links a")).toBeTruthy();
 });

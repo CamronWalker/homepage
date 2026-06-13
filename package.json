@@ -11,9 +11,7 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test"
   },
-  "dependencies": {
-    "gsap": "^3.13.0"
-  },
+  "dependencies": {},
   "devDependencies": {
     "vite": "^6.3.0",
     "vitest": "^3.1.0",

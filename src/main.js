@@ -1,72 +1,15 @@
-import gsap from "gsap";
-import ScrollTrigger from "gsap/ScrollTrigger";
-import MotionPathPlugin from "gsap/MotionPathPlugin";
-import DrawSVGPlugin from "gsap/DrawSVGPlugin";
-import { injectFlightLayer, injectGlobe, sizeRocketParts, els } from "./flight-layer.js";
-import { createPin } from "./mission/pins.js";
-import { TUNABLES, MOBILE } from "./mission/tunables.js";
-import { refreshCtx } from "./mission/context.js";
-import { buildLaunch } from "./mission/launch.js";
-import { buildSeparation } from "./mission/separation.js";
-import { buildSpacewalk } from "./mission/spacewalk.js";
-import { buildLanding } from "./mission/landing.js";
-import { createStageManager } from "./mission/stage.js";
-import { initProjectsUI } from "./ui/projects-modal.js";
-import { initPlane } from "./fx/plane.js";
-import { initContact } from "./ui/contact.js";
-import { initPencil } from "./fx/pencil.js";
+/* camronwalker.com — lean content site.
+   The scroll-choreographed rocket "mission" lives on the `full-mission-animations`
+   branch; this build keeps only the content, the project modal, the click-to-load
+   gist panels, the contact reveal, and the resume download. No GSAP. */
 
-gsap.registerPlugin(ScrollTrigger, MotionPathPlugin, DrawSVGPlugin);
-// normalize only on touch-only devices (iOS address-bar/momentum resync); on
-// desktop it proxies scrolling and breaks programmatic/embedded scroll tracking
-if (ScrollTrigger.isTouch === 1) ScrollTrigger.normalizeScroll(true);
-ScrollTrigger.addEventListener("refreshInit", refreshCtx);
-window.__ST = ScrollTrigger;   // debug + e2e settle hooks
-window.__gsap = gsap;
+import { initProjectsUI } from "./ui/projects-modal.js";
+import { initContact } from "./ui/contact.js";
+import { initGists } from "./ui/gists.js";
 
 document.documentElement.classList.add("js");
-injectFlightLayer();
-injectGlobe();                 // coastline chunk loads async — globe is below the fold
-sizeRocketParts();
-initPencil();                  // wobble + grain + draw-ons (after the flight art is injected)
-window.addEventListener("resize", sizeRocketParts);
-document.getElementById("yr").textContent = new Date().getFullYear();
-
-/* ---------- the mission (full choreography on every breakpoint) ---------- */
-const mm = gsap.matchMedia();
-mm.add(
-  { desktop: "(min-width: 769px)", mobile: "(max-width: 768px)", reduce: "(prefers-reduced-motion: reduce)" },
-  (mmCtx) => {
-    const { reduce, mobile } = mmCtx.conditions;
-    const flight = document.getElementById("flight");
-    if (reduce) { if (flight) flight.style.display = "none"; return; }
-    if (flight) flight.style.display = "";
-    sizeRocketParts();                                         // re-measure at the new breakpoint
-    const t = mobile ? { ...TUNABLES, ...MOBILE } : TUNABLES;  // mobile re-staging overrides
-    const pinGridEl = document.getElementById("pinGrid");
-    const onEnter = (self) => { if (self.isActive) refreshCtx(); };
-    const refs = {};
-    const hooks = {};                                          // late-bound cross-phase hooks
-    Object.assign(refs, buildLaunch(els, t));
-    Object.assign(refs, buildSeparation(els, t));
-    Object.assign(refs, buildSpacewalk(els, t, hooks));
-    const landing = buildLanding(els, t, { missionST: refs.mission });
-    Object.assign(refs, landing.refs);
-    hooks.laneNear = landing.laneNear;                         // phase-3 handoff glides onto phase-4's orbit
-    refs.s2Owners = [refs.separation, refs.coast, refs.mission, refs.orbit, refs.landing];
-    const removeStage = createStageManager(els, refs);
-    createPin({ trigger: ".about-pin",   topFrac: t.PIN_TOP_FRAC,        durVH: t.PIN_DUR_VH,        pinGridEl, onToggle: onEnter });
-    createPin({ trigger: ".skills-pin",  topFrac: t.SKILLS_PIN_TOP_FRAC, durVH: t.SKILLS_PIN_DUR_VH, pinGridEl, onToggle: onEnter });
-    createPin({ trigger: ".contact-pin", topFrac: t.FOOT_PIN_TOP_FRAC,   durVH: t.FOOT_PIN_DUR_VH,   pinGridEl, onToggle: onEnter });
-    // NOTE: no "back to the top" element by design — the mission ends on the
-    // contact section so visitors reach out instead of bouncing back up.
-    // phases are built before their pins, so re-sort into document order — otherwise
-    // triggers below a pin compute their ranges without that pin's spacer
-    ScrollTrigger.sort();
-    ScrollTrigger.refresh();
-    return () => removeStage();            // matchMedia cleanup on breakpoint change
-  }
-);
+const yr = document.getElementById("yr");
+if (yr) yr.textContent = new Date().getFullYear();
 
 /* ---------- nav: mobile burger ---------- */
 var burger   = document.getElementById("burger");
@@ -78,8 +21,14 @@ if (burger && navlinks) {
   });
 }
 
+/* ---------- nav: hairline border once scrolled ---------- */
+var nav = document.getElementById("nav");
+function onScrollNav() { if (nav) nav.classList.toggle("is-stuck", window.scrollY > 8); }
+window.addEventListener("scroll", onScrollNav, { passive: true });
+onScrollNav();
+
 /* ---------- active nav link via IntersectionObserver ---------- */
-var sections = ["work", "about", "skills", "experience", "contact"];
+var sections = ["work", "about", "skills", "tech", "experience", "contact"];
 var linkMap  = {};
 if (navlinks) {
   navlinks.querySelectorAll("a").forEach(function (a) {
@@ -100,7 +49,7 @@ if ("IntersectionObserver" in window) {
   sections.forEach(function (id) { var s = document.getElementById(id); if (s) navObs.observe(s); });
 }
 
-/* ---------- scroll reveal ---------- */
+/* ---------- scroll reveal (subtle fade-up; robust fallbacks so content can never stay hidden) ---------- */
 var reveals = document.querySelectorAll(".reveal");
 function revealInView() {
   var vh = window.innerHeight || document.documentElement.clientHeight;
@@ -118,15 +67,31 @@ if ("IntersectionObserver" in window) {
   }, { rootMargin: "0px 0px -8% 0px", threshold: 0.05 });
   reveals.forEach(function (el) { revObs.observe(el); });
 }
-// robust fallbacks so content can never stay hidden
 window.addEventListener("scroll", revealInView, { passive: true });
 window.addEventListener("load", revealInView);
 revealInView();
 setTimeout(revealInView, 400);
 
-/* ---------- projects modal ---------- */
+/* ---------- features ---------- */
 initProjectsUI();
-
-/* ---------- paper-airplane download + contact reveal ---------- */
-initPlane();
 initContact();
+initGists();
+
+/* ---------- resume download toast (native <a download> does the download) ---------- */
+(function initDownloads() {
+  var badge     = document.getElementById("dlBadge");
+  var badgeName = document.getElementById("dlName");
+  var timer = null;
+  function showBadge(fname) {
+    if (!badge) return;
+    if (badgeName) badgeName.textContent = fname || "resume";
+    badge.classList.add("show");
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(function () { badge.classList.remove("show"); }, 2800);
+  }
+  document.querySelectorAll(".js-dl").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      showBadge(btn.getAttribute("data-fname") || "resume");
+    });
+  });
+})();
