@@ -3,7 +3,7 @@
 # Connected to GitHub via Workers Builds: a push to `main` runs the build
 # command (`npm run build`) and then the deploy command (`npx wrangler deploy`),
 # and this Worker serves the result at camronwalker.com.
-name = "camronwalker-homepage"
+name = "homepage"
 compatibility_date = "2024-11-01"
 
 # Static assets only — no server code needed. Unknown paths fall back to the
