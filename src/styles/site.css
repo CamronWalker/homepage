@@ -176,7 +176,7 @@ section { position: relative; }
 .gist-blurb { font-size: 14px; color: var(--cw-graphite-2); line-height: 1.4; }
 .gist-region { padding: 0 20px 20px; }
 .gist-region[hidden] { display: none; }
-.gist-mount { border-top: 1px dashed var(--cw-line); padding-top: 16px; overflow-x: auto; }
+.gist-mount { border-top: 1px dashed var(--cw-line); padding-top: 16px; max-height: 460px; overflow: auto; }
 .gist-loading, .gist-todo, .gist-err { font-family: var(--cw-mono); font-size: 13px; color: var(--cw-graphite-2); margin: 0; }
 .gist-todo code { background: var(--cw-paper-2); padding: 1px 5px; border-radius: 3px; font-size: 12px; }
 .gist-err a, .gist-todo a { color: var(--cw-blue-ink); }
